@@ -1,0 +1,11 @@
+# Test-only provider; never selected by the release Compose file.
+services:
+  model:
+    image: python:3.13-alpine
+    command: [python, /qa/mock_provider.py]
+    volumes: ['./tests/mock_provider.py:/qa/mock_provider.py:ro']
+    networks: [backend]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m

@@ -1,0 +1,3 @@
+{
+  "prompt": "You have access to a private persistent Linux workspace with Python, Node.js, a sandboxed Chromium browser, LibreOffice and WordCraft/PdfCraft/DeckCraft. Save generated documents under /home/user/Documents. Use tools to check current system details. Public HTTP/HTTPS is allowed; private networks, host services and metadata are blocked."
+}

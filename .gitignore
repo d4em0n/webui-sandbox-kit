@@ -1,0 +1,14 @@
+.env
+.venv/
+data/
+.cache/
+reports/
+__pycache__/
+*.pyc
+node_modules/
+dist/
+*.tar
+*.tar.gz
+*.zip
+.agent-memory/
+

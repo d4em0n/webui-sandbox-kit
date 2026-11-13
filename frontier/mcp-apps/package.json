@@ -1,0 +1,13 @@
+{
+  "name": "frontier-ui-mcp-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "python3 build.py && node build.mjs",
+    "test": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "test:browser": "node tests/browser.mjs"
+  },
+  "dependencies": {"@modelcontextprotocol/ext-apps": "2.1.0"},
+  "devDependencies": {"esbuild": "0.27.4"}
+}

@@ -1,0 +1,31 @@
+# Verification and development
+
+Unit/security checks do not require KVM:
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r controller/requirements.lock
+.venv/bin/python scripts/test.py reports/unit.json
+```
+
+They cover caller approval, concurrent user mapping, separate backend credentials, ordinary
+HTTP/PTY WebSocket auth, browser-view header auth and binary frames, revoked accounts,
+resource configuration, browser-profile lease safety, independent secrets and backup integrity.
+
+Use a dedicated data directory, localhost port and project for full integration tests. The
+default release Compose file has no QA model endpoint. `tests/compose.qa.yaml` adds a local
+OpenAI-compatible mock so connection/tool plumbing can be tested without a paid model key
+or the development machine's gateway/DNS. Explicitly opt the WebUI VM into that private
+endpoint; never reuse a production instance/database for these checks.
+
+The original deployment's feasibility experiment is not a clean-install certification of
+this package. Package-level results must identify the actual tested code/image and distinguish
+native browser/MCP checks from a physical iOS app. See `VERIFICATION.md` for the current result.
+
+When changing authentication or native upstream API contracts, rerun both routing tests and
+the relevant integration scenarios. Keep failure logs private; do not commit bearer tokens,
+browser capability URLs, chat data or user files. Report summaries should omit secrets.
+
+The Frontier renderer build asserts upstream extraction anchors; a changed upstream HTML
+layout must be reviewed rather than silently accepted. Build with the lockfile; no guest
+Node runtime is needed. Keep `frontier/frontier_ui.py` independent and unchanged.

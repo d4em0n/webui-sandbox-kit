@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+"""Small, dependency-free operator CLI. All Docker actions stay in one Compose project."""
+import argparse
+import hashlib
+import ipaddress
+import json
+import os
+from pathlib import Path
+import platform
+import secrets
+import socket
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parent
+
+
+def environment():
+    path = ROOT / ".env"
+    if not path.exists():
+        raise SystemExit("Run ./kit init first")
+    values = {}
+    for line in path.read_text().splitlines():
+        if line and not line.startswith("#"):
+            key, _, value = line.partition("=")
+            values[key] = json.loads(value) if value.startswith('"') else value
+    return values
+
+
+def compose(*args, check=True, capture=False):
+    env = {**os.environ, **environment()}
+    settings = json.loads((Path(env["DATA_DIR"]) / "controller/config/settings.json").read_text())
+    command = ["docker", "compose", "--project-directory", str(ROOT), "--env-file", str(ROOT / ".env"),
+               "--file", str(ROOT / "compose.yaml")]
+    if settings.get("firecrawl", True):
+        command += ["--profile", "web"]
+    return subprocess.run([*command, *args], cwd=ROOT, env=env, check=check, text=True,
+                          stdout=subprocess.PIPE if capture else None)
+
+
+def initialize(args):
+    from controller.settings import atomic_json, load_settings
+    old = environment() if (ROOT / ".env").exists() else {}
+    directory = Path(args.data_dir or old.get("DATA_DIR", ROOT / "data")).expanduser().resolve()
+    if directory.is_relative_to(ROOT) and directory != ROOT / "data":
+        raise SystemExit("Use the ignored ./data directory or place custom instance data outside this checkout")
+    if old and str(directory) != old["DATA_DIR"]:
+        raise SystemExit("This checkout already has an installation. Use a separate checkout for another data directory.")
+    marker = directory / ".webui-sandbox-kit.json"
+    owned = marker.exists() and json.loads(marker.read_text()).get("kit") == "webui-sandbox-kit"
+    previous = old.get("DATA_DIR") == str(directory) and (directory / "controller/config/settings.json").is_file()
+    if directory.exists() and any(directory.iterdir()) and not (owned or previous):
+        raise SystemExit("Data directory is not empty and is not a kit installation; refusing to change it")
+    directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+    directory.chmod(0o700)
+    if not marker.exists():
+        atomic_json(marker, {"format": 1, "kit": "webui-sandbox-kit"})
+    config = directory / "controller/config"
+    config.mkdir(parents=True, exist_ok=True, mode=0o700)
+    settings = load_settings(directory / "controller")
+    for argument, key in [("provider_url", "provider_url"), ("model", "default_model")]:
+        value = getattr(args, argument, None)
+        if value is not None:
+            settings[key] = value
+    if args.no_firecrawl:
+        settings["firecrawl"] = False
+    if args.allow_private_provider:
+        settings["provider_allow_private"] = True
+    port = str(args.port or old.get("WEBUI_PORT", "3000"))
+    if args.public_url:
+        settings["public_url"] = args.public_url
+    elif not old or settings["public_url"] == "http://localhost:" + old.get("WEBUI_PORT", "3000"):
+        settings["public_url"] = "http://localhost:" + port
+    atomic_json(config / "settings.json", settings)
+    load_settings(directory / "controller")
+    key_path = config / "provider-key"
+    if args.provider_key_file:
+        key_path.write_text(Path(args.provider_key_file).read_text().strip() + "\n")
+        key_path.chmod(0o600)
+    elif not key_path.exists():
+        key_path.touch(mode=0o600)
+    values = {**old, "COMPOSE_PROJECT_NAME": args.project or old.get("COMPOSE_PROJECT_NAME", "webui-sandbox-kit"),
+              "DATA_DIR": str(directory), "WEBUI_PORT": port, "BIND_ADDRESS": old.get("BIND_ADDRESS", "127.0.0.1"),
+              "KIT_UID": str(os.getuid()), "KIT_GID": str(os.getgid()), "KVM_GID": str(os.stat("/dev/kvm").st_gid)}
+    values["KIT_SUBNET"] = args.subnet or old.get("KIT_SUBNET") or available_subnet(values["COMPOSE_PROJECT_NAME"])
+    network = ipaddress.ip_network(values["KIT_SUBNET"], strict=True)
+    if network.version != 4 or not network.is_private or network.prefixlen < 24:
+        raise SystemExit("Use a private IPv4 subnet of /24 or smaller")
+    project = values["COMPOSE_PROJECT_NAME"]
+    if not project or project[0] not in "abcdefghijklmnopqrstuvwxyz0123456789" or any(
+        char not in "abcdefghijklmnopqrstuvwxyz0123456789-_" for char in project):
+        raise SystemExit("Project name must use lowercase letters, digits, underscores or hyphens")
+    env_path = ROOT / ".env"
+    env_path.write_text("".join(key + "=" + json.dumps(value) + "\n" for key, value in values.items()))
+    env_path.chmod(0o600)
+    firecrawl = directory / "firecrawl"
+    firecrawl.mkdir(exist_ok=True, mode=0o700)
+    password = firecrawl / "postgres-password"
+    if not password.exists():
+        password.write_text(secrets.token_urlsafe(48) + "\n")
+        password.chmod(0o600)
+    api_env = firecrawl / "api.env"
+    api_env.write_text("POSTGRES_PASSWORD=" + password.read_text().strip() + "\n")
+    api_env.chmod(0o600)
+    print("Initialized independent installation at " + str(directory))
+    print("Model provider: " + settings["provider_url"] + "; default model: " + (settings["default_model"] or "select in WebUI"))
+
+
+def available_subnet(project):
+    """Choose an unused small network; never change the daemon's global address pools."""
+    used = []
+    networks = subprocess.check_output(["docker", "network", "ls", "--quiet"], text=True).split()
+    if networks:
+        details = json.loads(subprocess.check_output(["docker", "network", "inspect", *networks], text=True))
+        for item in details:
+            for entry in item.get("IPAM", {}).get("Config", []) or []:
+                if entry.get("Subnet"):
+                    used.append(ipaddress.ip_network(entry["Subnet"]))
+    routes = json.loads(subprocess.check_output(["ip", "-json", "route", "show", "table", "all"], text=True))
+    for route in routes:
+        if route.get("dst") not in (None, "default", "0.0.0.0/0"):
+            used.append(ipaddress.ip_network(route["dst"], strict=False))
+    offset = int(hashlib.sha256(project.encode()).hexdigest()[:4], 16)
+    for index in range(65536):
+        value = (offset + index) % 65536
+        candidate = ipaddress.ip_network(f"10.{value // 256}.{value % 256}.0/24")
+        if not any(candidate.overlaps(item) for item in used if item.version == 4):
+            return str(candidate)
+    raise SystemExit("No unused private subnet found; provide --subnet after reviewing host routes")
+
+
+def doctor():
+    if sys.platform != "linux" or platform.machine() != "x86_64":
+        raise SystemExit("This release supports Linux x86_64 with KVM. Other platforms are not verified.")
+    if not Path("/dev/kvm").exists():
+        raise SystemExit("/dev/kvm is missing. Enable hardware virtualization/KVM on the host.")
+    subprocess.run(["docker", "info"], check=True, stdout=subprocess.DEVNULL)
+    subprocess.run(["docker", "compose", "version"], check=True)
+    if (ROOT / ".env").exists():
+        from controller.settings import load_settings
+        load_settings(Path(environment()["DATA_DIR"]) / "controller")
+        compose("config", "--quiet")
+    print("Linux/KVM, Docker and Compose checks passed")
+
+
+def backup(args):
+    env = environment()
+    destination = Path(args.output or (Path(env["DATA_DIR"]) / "backups")).resolve()
+    destination.mkdir(parents=True, exist_ok=True, mode=0o700)
+    running = compose("ps", "--status", "running", "--services", capture=True).stdout.splitlines()
+    declared = compose("config", "--services", capture=True).stdout.splitlines()
+    running = [name for name in running if name in declared]
+    try:
+        compose("stop")
+        compose("run", "--rm", "--no-deps", "--user", "0:0", "--cap-add", "DAC_OVERRIDE", "--cap-add", "CHOWN",
+            "--entrypoint", "python", "--volume", env["DATA_DIR"] + ":/backup-source:ro", "--volume", str(destination) + ":/backup-output",
+            "controller", "/opt/kit/scripts/backup.py", "create", "/backup-source", "/backup-output",
+            "--uid", env["KIT_UID"], "--gid", env["KIT_GID"])
+    finally:
+        if running:
+            compose("start", *running)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="action", required=True)
+    init = commands.add_parser("init", help="Generate isolated configuration; preserve existing secrets")
+    init.add_argument("--data-dir")
+    init.add_argument("--project")
+    init.add_argument("--subnet", help="Optional private Docker subnet; otherwise detect an unused /24")
+    init.add_argument("--port", type=int, choices=range(1, 65536), metavar="PORT")
+    init.add_argument("--public-url")
+    init.add_argument("--provider-url")
+    init.add_argument("--provider-key-file")
+    init.add_argument("--model")
+    init.add_argument("--allow-private-provider", action="store_true")
+    init.add_argument("--no-firecrawl", action="store_true")
+    commands.add_parser("doctor")
+    commands.add_parser("up")
+    commands.add_parser("down", help="Remove this project's containers/network; retain all external data")
+    commands.add_parser("stop")
+    commands.add_parser("restart")
+    commands.add_parser("status")
+    logs = commands.add_parser("logs")
+    logs.add_argument("service", nargs="?", default="controller")
+    commands.add_parser("update", help="Rebuild from this checkout's pinned versions; no automatic latest pulls")
+    export = commands.add_parser("backup")
+    export.add_argument("--output")
+    verify = commands.add_parser("verify-backup")
+    verify.add_argument("archive")
+    restore = commands.add_parser("restore")
+    restore.add_argument("archive")
+    args = parser.parse_args()
+    if args.action == "init":
+        initialize(args)
+    elif args.action == "doctor":
+        doctor()
+    elif args.action == "up":
+        doctor()
+        env = environment()
+        running = compose("ps", "--status", "running", "--services", capture=True).stdout.splitlines()
+        if "controller" not in running:
+            with socket.socket() as probe:
+                try:
+                    probe.bind((env["BIND_ADDRESS"], int(env["WEBUI_PORT"])))
+                except OSError:
+                    raise SystemExit("Requested port is occupied. Choose another with ./kit init --port PORT.")
+        compose("up", "--detach", "--build")
+        print("Open http://localhost:" + env["WEBUI_PORT"] + " after startup. Create the first administrator in Open WebUI.")
+    elif args.action in ("stop", "down", "restart"):
+        compose(args.action)
+    elif args.action == "status":
+        compose("ps")
+    elif args.action == "logs":
+        compose("logs", "--follow", "--tail", "100", args.service)
+    elif args.action == "update":
+        backup(argparse.Namespace(output=None))
+        compose("up", "--detach", "--build")
+    elif args.action == "backup":
+        backup(args)
+    elif args.action == "verify-backup":
+        subprocess.run([sys.executable, str(ROOT / "scripts/backup.py"), "verify", str(Path(args.archive).resolve())], check=True)
+    elif args.action == "restore":
+        env = environment()
+        archive = Path(args.archive).resolve()
+        data = Path(env["DATA_DIR"])
+        if compose("ps", "--status", "running", "--services", capture=True).stdout.strip():
+            raise SystemExit("Stop this installation before restore")
+        # init creates only config files; never overwrite a populated application database/workspace.
+        if (data / "controller/webui/data").exists() or (data / "firecrawl/postgres/PG_VERSION").exists():
+            raise SystemExit("Restore requires a new installation directory without application data")
+        compose("run", "--rm", "--no-deps", "--user", "0:0", "--cap-add", "DAC_OVERRIDE", "--cap-add", "CHOWN", "--cap-add", "FOWNER",
+            "--entrypoint", "python", "--volume", str(archive.parent) + ":/backup-input:ro", "--volume", str(data) + ":/backup-target",
+            "controller", "/opt/kit/scripts/backup.py", "restore", "/backup-input/" + archive.name, "/backup-target",
+            "--uid", env["KIT_UID"], "--gid", env["KIT_GID"])
+        print("Restored persistent state. Set the public URL/provider as needed, then run ./kit up.")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (subprocess.CalledProcessError, ValueError, OSError) as error:
+        raise SystemExit(str(error))

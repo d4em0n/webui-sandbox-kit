@@ -1,0 +1,16 @@
+{
+  "title": "Kyoto interactive itinerary",
+  "subtitle": "Synthetic demonstration itinerary; costs are editable planning assumptions.",
+  "blocks": [
+    {"type": "text", "md": "Explore eastern Kyoto, then Fushimi Inari. Select a day or a map marker and adjust the daily budget."},
+    {"type": "images", "items": [{"query": "Kiyomizu dera Kyoto", "caption": "Kiyomizu-dera"}, {"query": "Fushimi Inari Kyoto", "caption": "Fushimi Inari Taisha"}]},
+    {"type": "map", "area": "Kyoto, Japan", "mode": "walk", "days": [
+      {"label": "Day 1", "places": [{"name": "Kiyomizu-dera", "lat": 34.9949, "lng": 135.7850, "time": "09:00"}, {"name": "Yasaka Shrine", "lat": 35.0037, "lng": 135.7786, "time": "11:00"}, {"name": "Gion", "lat": 35.0030, "lng": 135.7750, "time": "13:00"}]},
+      {"label": "Day 2", "places": [{"name": "Fushimi Inari Taisha", "lat": 34.9671, "lng": 135.7727, "time": "08:00"}, {"name": "Tofuku-ji", "lat": 34.9765, "lng": 135.7736, "time": "11:00"}]}
+    ]},
+    {"type": "timeline", "items": [{"time": "09:00", "title": "Kiyomizu-dera", "place": "Kiyomizu-dera", "day": "Day 1", "detail": "Explore the temple area."}, {"time": "08:00", "title": "Fushimi Inari", "place": "Fushimi Inari Taisha", "day": "Day 2", "detail": "Walk the shrine paths."}]},
+    {"type": "calculator", "currency": "¥", "inputs": [{"id": "daily", "label": "Daily budget", "value": 5000, "min": 1000, "max": 20000, "step": 500}, {"id": "days", "label": "Days", "value": 2, "min": 1, "max": 7, "step": 1}], "outputs": [{"label": "Trip total", "expr": "daily*days", "format": "money"}]},
+    {"type": "chart", "kind": "bar", "labels": ["Meals", "Transit", "Activities"], "series": [{"name": "Planning assumptions", "data": [2500, 1000, 1500]}], "unit": "¥"}
+  ],
+  "followups": ["Suggest a rainy-day alternative"]
+}

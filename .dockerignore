@@ -1,0 +1,11 @@
+.git
+.env
+.venv
+data
+.cache
+reports
+**/__pycache__
+**/node_modules
+**/dist
+.agent-memory
+
