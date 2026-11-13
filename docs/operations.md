@@ -38,6 +38,10 @@ an existing WebUI data directory/PostgreSQL cluster. It verifies hashes and reje
 archive paths; controller-owned data is remapped to the new host UID/GID while database
 ownership is preserved. Existing account passwords and secrets come from the backup.
 
+Saved Frontier export cards may contain absolute URLs from the old public origin. Keep
+that origin behind your proxy, or regenerate those exports after changing domains/ports.
+The kit does not silently rewrite historical chat content during restore.
+
 ## Upgrade
 
 Review changes to `versions.lock.json`, notices and tests, then run `./kit update`.

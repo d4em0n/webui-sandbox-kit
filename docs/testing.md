@@ -18,6 +18,12 @@ OpenAI-compatible mock so connection/tool plumbing can be tested without a paid 
 or the development machine's gateway/DNS. Explicitly opt the WebUI VM into that private
 endpoint; never reuse a production instance/database for these checks.
 
+Run API checks with `tests/integration.py --base-url URL --state-dir /private/qa --disposable`.
+It creates synthetic accounts/files and saves test sessions privately. `tests/guest_mcp.py`
+runs inside the disposable WebUI VM with those sessions supplied through stdin. The optional
+Playwright check is `tests/browser/widgets.cjs`; set `KIT_QA_URL`, `KIT_QA_STATE` and, when
+needed, `PLAYWRIGHT_MODULE`. These test helpers never need a real model-provider credential.
+
 The original deployment's feasibility experiment is not a clean-install certification of
 this package. Package-level results must identify the actual tested code/image and distinguish
 native browser/MCP checks from a physical iOS app. See `VERIFICATION.md` for the current result.

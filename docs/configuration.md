@@ -34,7 +34,7 @@ Microsandbox home here. The container's `/data` path is stable across machines.
 - `public_url`: defaults to `http://localhost:PORT`; set to your own reverse-proxy URL.
 - `provider_url`, `provider_allow_private`, `default_model`: any compatible model gateway.
 - `webui_cpus`, `webui_memory_mib`: default 4/4096.
-- `user_cpus`, `user_memory_mib`, `max_users`: default 2/2048/8.
+- `user_cpus`, `user_memory_mib`, `max_users`: default 2/2048/2.
 - `signup`: false by default. Enabled signups get the `pending` role until approved.
 - `firecrawl`: true by default; `firecrawl_url` targets the bundled service via Docker DNS.
 - `root_disk_gib`: sparse managed root overlays, default 30.
@@ -46,6 +46,9 @@ particular gateway vendor, model name, domain, Tailscale or GPU is assumed.
 The configured `default_model` is published under its unchanged provider ID with a read
 grant for approved users after the first admin is created. Existing model records and
 their access controls are retained. Publish additional models through the native admin UI.
+
+Frontier valves are in `controller/webui/config/frontier.json`; operator changes survive
+restart. Custom CDN/tile origins are derived from those valves by the MCP resource CSP.
 
 To expose through a reverse proxy, point it at the published localhost port and enable
 WebSocket/SSE forwarding. Set `public_url` and restart the kit. The kit does not edit your

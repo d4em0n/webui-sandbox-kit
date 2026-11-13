@@ -22,6 +22,8 @@
 - File operations through MCP need an explicit owned WebUI file ID/name. The protocol does
   not forward current-chat attachments automatically. Model-accessible workspace files can
   also be managed through native Terminal tools.
+- Craft JSON/stdin requests are bounded to 16 MiB, including base64 file payloads. Use native
+  workspace file tools for larger inputs rather than embedding a large file in a tool call.
 - Basic native memory, knowledge and scheduled-task features are enabled. Memory extraction
   depends on conversations/model behavior; it is not guaranteed after every message.
 - Provider image generation, real-time voice, OCR dependencies and local TTS models are not

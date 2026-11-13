@@ -86,5 +86,7 @@ def prepare(data=DATA):
     if settings["default_model"]:
         env["DEFAULT_MODELS"] = settings["default_model"]
     atomic_json(data / "webui/config/environment.json", env)
-    atomic_json(data / "webui/config/frontier.json", {"embedding_url": "", "page_screenshots": False, "units": "metric"})
+    frontier = data / "webui/config/frontier.json"
+    if not frontier.exists():
+        atomic_json(frontier, {"embedding_url": "", "page_screenshots": False, "units": "metric"})
     return settings

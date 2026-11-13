@@ -31,7 +31,7 @@ def load_settings(data=DATA):
         "webui_memory_mib": 4096,
         "user_cpus": 2,
         "user_memory_mib": 2048,
-        "max_users": 8,
+        "max_users": 2,
         "signup": False,
         "firecrawl": True,
         "firecrawl_url": "http://firecrawl-api:3002",

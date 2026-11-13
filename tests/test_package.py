@@ -29,10 +29,12 @@ class ConfigurationTests(unittest.TestCase):
             prepare(b)
             first = (a / "config/webui-secret").read_text()
             self.assertNotEqual(first, (b / "config/webui-secret").read_text())
+            (a / "webui/config/frontier.json").write_text('{"units":"imperial"}')
             prepare(a)
             self.assertEqual(first, (a / "config/webui-secret").read_text())
             self.assertFalse((a / "webui/data/webui.db").exists())
             self.assertEqual(a.stat().st_mode & 0o777, 0o700)
+            self.assertEqual(json.loads((a / "webui/config/frontier.json").read_text())["units"], "imperial")
 
     def test_user_supplied_credentials_never_enter_workspace_templates(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -62,6 +64,7 @@ class ConfigurationTests(unittest.TestCase):
             for forbidden in ["localup", "tailscale", "192.168.", "/mnt/data", "/home/"]:
                 self.assertNotIn(forbidden, text)
             self.assertFalse(settings["provider_allow_private"])
+            self.assertLessEqual(settings["webui_memory_mib"] + settings["user_memory_mib"] * settings["max_users"], 8192)
 
 
 class BackupTests(unittest.TestCase):

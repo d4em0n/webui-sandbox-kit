@@ -31,6 +31,9 @@ are not verified. First boot needs registry/GitHub/Hugging Face internet access.
 
 Plan for the WebUI VM's 4 GiB plus 2 GiB per active user, Firecrawl and host overhead.
 Pinned application images and persistent caches also need substantial disk space.
+The default capacity is two user workspaces within a 10-GiB controller limit; allow
+roughly 16 GiB host RAM for the complete stack. Raise the controller/host memory budget
+alongside `max_users`, or disable Firecrawl/reduce VM sizes on smaller machines.
 
 ## Start
 
