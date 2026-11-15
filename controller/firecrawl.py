@@ -7,7 +7,7 @@ from .proxy import relay
 from .settings import DATA, secret
 
 
-def endpoint(settings, client, data=DATA):
+def endpoint(settings, manager, data=DATA):
     async def forward(request):
         if not settings["firecrawl"]:
             raise web.HTTPNotFound()
@@ -22,5 +22,5 @@ def endpoint(settings, client, data=DATA):
             if key:
                 headers["Authorization"] = "Bearer " + key
         target = settings["firecrawl_url"].rstrip("/") + request.raw_path.removeprefix("/firecrawl")
-        return await relay(request, client, target, headers)
+        return await relay(request, manager.client, target, headers)
     return forward

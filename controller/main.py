@@ -29,7 +29,7 @@ async def serve():
     internal.cleanup_ctx.append(manager.lifecycle)
     internal.router.add_post("/craft/{operation}", craft.endpoint)
 
-    internal.router.add_route("*", "/firecrawl/{path:.*}", firecrawl_endpoint(settings, manager.client))
+    internal.router.add_route("*", "/firecrawl/{path:.*}", firecrawl_endpoint(settings, manager))
     internal.router.add_route("*", "/{path:.*}", manager.proxy)
     internal_runner = web.AppRunner(internal, access_log=None, shutdown_timeout=20)
     await internal_runner.setup()

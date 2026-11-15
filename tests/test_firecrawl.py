@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from aiohttp import ClientSession, web
@@ -45,7 +46,10 @@ class FirecrawlTests(unittest.IsolatedAsyncioTestCase):
         settings = {'firecrawl': enabled, 'firecrawl_mode': mode,
                     'firecrawl_url': str(self.upstream.make_url('/prefix/'))}
         app = web.Application()
-        app.router.add_route('*', '/firecrawl/{path:.*}', endpoint(settings, self.session, self.root))
+        manager = SimpleNamespace()
+        app.router.add_route('*', '/firecrawl/{path:.*}', endpoint(settings, manager, self.root))
+        # The real manager creates its client during app startup, after route registration.
+        manager.client = self.session
         client = TestClient(TestServer(app))
         await client.start_server()
         self.clients.append(client)
