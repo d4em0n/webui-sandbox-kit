@@ -23,6 +23,18 @@ spec.loader.exec_module(backup)
 
 
 class ConfigurationTests(unittest.TestCase):
+    def test_https_origin_sets_secure_cookies_and_private_defaults(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'config').mkdir()
+            (root / 'config/settings.json').write_text(json.dumps({'public_url': 'https://assistant.example.com'}))
+            prepare(root)
+            env = json.loads((root / 'webui/config/environment.json').read_text())
+            self.assertEqual(env['WEBUI_SESSION_COOKIE_SECURE'], 'true')
+            self.assertEqual(env['WEBUI_AUTH_COOKIE_SECURE'], 'true')
+            self.assertEqual(env['ANONYMIZED_TELEMETRY'], 'false')
+            self.assertEqual(env['ENABLE_FORWARD_USER_INFO_HEADERS'], 'false')
+
     def test_two_installations_have_distinct_secrets_and_no_copied_accounts(self):
         with tempfile.TemporaryDirectory() as directory:
             a, b = Path(directory) / "one", Path(directory) / "two"

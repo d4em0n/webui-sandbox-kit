@@ -62,6 +62,9 @@ WebSocket/SSE forwarding. Set `public_url` and restart the kit. The kit does not
 proxy or DNS. Change `BIND_ADDRESS` in `.env` only when you deliberately want a non-loopback
 listener; configure your own TLS/authenticated network access before doing so.
 
+HTTPS public origins enable Secure authentication/session cookies. Telemetry, arena/model
+evaluation, automatic version checks and provider user-info forwarding default to disabled.
+
 The UI retains native Open WebUI branding. Creating a custom visual identity does not
 change upstream license conditions.
 

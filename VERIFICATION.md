@@ -94,3 +94,7 @@ the controller is unprivileged, without a Docker socket, and publishes only loca
 These results cover one Linux homeserver. No second physical machine, host reboot or physical
 iPhone test was performed for this promotion. Conduit remains a separately installed client.
 Optional speech assets are externally supplied as documented, not a default bundled download.
+
+Post-promotion hardening adds an HTTPS-origin cookie/privacy regression: **52 unit/security
+checks pass**. Secure cookies follow the public origin; telemetry and provider identity
+forwarding are explicitly disabled. This updates integration defaults, not application cores.
