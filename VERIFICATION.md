@@ -47,3 +47,14 @@ GitHub CI configuration is included; no GitHub repository or remote CI run was c
 Default capacity was subsequently bounded to two workspaces for the 10-GiB controller
 budget; unit checks cover that bound and persistent custom Frontier valves. See
 [limits](docs/limitations.md), [testing](docs/testing.md) and [operations](docs/operations.md).
+
+## 2026-11-15 file metadata correction
+
+`display_file` now supplies canonical DOCX/PPTX/XLSX MIME metadata from the external
+adapter. The official WebUI image lacks the OS MIME table; its tool-result middleware
+otherwise falls back to `application/octet-stream`. File bytes and original MIME values
+are preserved. **44 unit/security checks pass**, including the missing-table regression.
+The matching live adapter passed five checks for metadata propagation, an intact six-slide
+PPTX, PDF conversion, mobile-sized Chromium canvas rendering and service health.
+An iPhone Safari black-panel report remains unverified on a physical device; WebUI's viewer
+also uses filename extensions, so the wrong metadata alone does not establish that cause.

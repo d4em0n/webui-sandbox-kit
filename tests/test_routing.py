@@ -41,6 +41,9 @@ class RoutingTests(unittest.IsolatedAsyncioTestCase):
         self.servers = []
 
         async def backend(request):
+            if request.path == '/files/display':
+                self.assertEqual(request.headers.get('Accept-Encoding'), 'identity')
+                return web.json_response({'path': request.query.get('path'), 'exists': True})
             if request.headers.get('Upgrade', '').lower() == 'websocket':
                 ws = web.WebSocketResponse()
                 await ws.prepare(request)
@@ -89,6 +92,26 @@ class RoutingTests(unittest.IsolatedAsyncioTestCase):
 
     def headers(self, uid=None, key='router-secret'):
         return {'Authorization': 'Bearer ' + key, **({'X-User-Id': uid} if uid else {})}
+
+    async def test_display_file_returns_office_mime_when_webui_has_no_mime_database(self):
+        from unittest.mock import patch
+        with patch.object(module.mimetypes, 'guess_type', return_value=(None, None)):
+            for extension, expected in module.OFFICE_MIMES.items():
+                response = await self.client.get('/files/display',
+                    params={'path': '/home/user/Documents/deck' + extension.upper()},
+                    headers={**self.headers(self.users[0]), 'accept-encoding': 'gzip'})
+                self.assertEqual(response.status, 200)
+                value = await response.json()
+                self.assertEqual(value['mime_type'], expected)
+                self.assertEqual(value['content_type'], expected)
+                self.assertTrue(value['exists'])
+
+
+    async def test_display_metadata_preserves_errors_unknown_files_and_explicit_mime(self):
+        for result in ({'exists': False, 'path': 'file.pptx'}, {'exists': True, 'path': 'file.unknownext'},
+                       {'exists': True, 'path': 'file.pptx', 'content_type': 'application/pdf', 'mime_type': 'application/pdf'}):
+            self.assertEqual(module.file_display_metadata(result), result)
+
 
     async def test_invalid_and_unapproved_identities_cannot_route(self):
         for uid in [None, '../other', str(uuid.uuid4()), *self.users[2:]]:

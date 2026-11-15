@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import json
 import logging
+import mimetypes
 import os
 from pathlib import Path
 import re
@@ -21,6 +22,26 @@ MSB = os.environ.get('MSB_BIN', '/opt/microsandbox/bin/msb')
 HOP_HEADERS = {'connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization',
                'te', 'trailer', 'transfer-encoding', 'upgrade', 'host', 'content-length'}
 LOG = logging.getLogger('terminal-provisioner')
+
+OFFICE_MIMES = {
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+}
+
+def file_display_metadata(result):
+    """Supply metadata missing from slim WebUI images without changing file bytes."""
+    if not isinstance(result, dict) or result.get('exists') is not True:
+        return result
+    path = result.get('full_path') or result.get('path')
+    if not isinstance(path, str) or not path:
+        return result
+    mime = result.get('content_type') or result.get('mime_type')
+    if not mime or mime == 'application/octet-stream':
+        mime = OFFICE_MIMES.get(Path(path).suffix.lower()) or mimetypes.guess_type(path)[0]
+    if not mime:
+        return result
+    return {**result, 'mime_type': mime, 'content_type': mime}
 
 
 def atomic_json(path, value):
@@ -319,6 +340,10 @@ class Manager:
         headers['Authorization'] = 'Bearer ' + (Path(entry['config']) / 'api-key').read_text().strip()
         headers['X-User-Id'] = user_id
         headers['X-Session-Id'] = session_scope(request.headers.get('X-Session-Id'))
+        display_request = request.method == 'GET' and request.path == '/files/display'
+        if display_request:
+            headers = {key: value for key, value in headers.items() if key.lower() != 'accept-encoding'}
+            headers['Accept-Encoding'] = 'identity'
         try:
             if self.config.get('auto_browser') and request.path in (
                 '/browser/snapshot', '/browser/screenshot', '/browser/action'
@@ -327,6 +352,17 @@ class Manager:
             async with self.client.request(request.method, target, headers=headers,
                                            data=request.content if request.can_read_body else None,
                                            allow_redirects=False) as upstream:
+                if display_request and upstream.status == 200:
+                    body = bytearray()
+                    async for chunk in upstream.content.iter_chunked(4096):
+                        body.extend(chunk)
+                        if len(body) > 65536:
+                            raise web.HTTPBadGateway(text='Invalid file display metadata.')
+                    try:
+                        result = json.loads(body)
+                    except (ValueError, UnicodeDecodeError):
+                        raise web.HTTPBadGateway(text='Invalid file display metadata.')
+                    return web.json_response(file_display_metadata(result))
                 response = web.StreamResponse(status=upstream.status,
                     headers={key: value for key, value in upstream.headers.items()
                              if key.lower() not in HOP_HEADERS})
