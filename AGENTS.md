@@ -8,7 +8,8 @@ Keep Open WebUI/Open Terminal core images and `frontier/frontier_ui.py` unchange
 Host adaptation belongs in the controller or MCP adapters. Preserve upstream notices.
 Do not commit `.env`, instance data, credentials, reports containing sessions, or runtime images.
 Documentation screenshots/GIFs are allowed under `docs/media/` when captured from an
-isolated synthetic demo, reviewed for private data, and accompanied by provenance.
+isolated synthetic demo and reviewed for private data. Preserve provenance in a source
+comment or commit; put personal attribution in commit authorship, not media overlays.
 
 Run `python3 -m unittest discover -s tests -v` for unit/security checks.
 Full integration QA needs Linux/amd64, Docker Compose and `/dev/kvm`.

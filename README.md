@@ -32,20 +32,13 @@ Use it as a starting point for your own self-hosted assistant.
 
 **One chat: browse → plan a Kyoto trip → create a DOCX → explore your workspace.**
 
-[![Watch the light-theme Kyoto workflow: interactive itinerary and a DOCX preview in the right sidebar](docs/media/kyoto-workflow.png)](docs/media/kyoto-workflow.mp4)
-
-**[Full recording (MP4)](docs/media/kyoto-workflow.mp4)** · [Capture notes](docs/media/README.md)
-
-<details>
-<summary><strong>Play the animated preview</strong></summary>
-
 ![Recorded workflow showing the itinerary, live calculator, terminal, Inbox and DOCX preview](docs/media/kyoto-workflow.gif)
 
-</details>
-
-Recorded in the white theme with a sample account, scripted model orchestration and
-real browser, MCP Apps and WordCraft tools. The walkthrough opens the right sidebar's
-terminal, then Inbox, and clicks the generated DOCX to preview it.
+<!-- Captured 2026-11-15 in a disposable kit installation with official locked images,
+     a sample account, a scripted QA model and real browser/Frontier/WordCraft tools.
+     The continuous light-theme walkthrough explores the completed tool run, then
+     opens the right sidebar's terminal, Inbox and DOCX preview. Startup is trimmed;
+     no personal data is used. Visible map attribution remains in the recording. -->
 
 ## What's inside
 
@@ -256,9 +249,6 @@ keeps kit fixes and related upstream reports connected.
 | [Publishing your variation](docs/publishing.md) | [Third-party notices](THIRD_PARTY_NOTICES.md) |
 
 ---
-
-Created and maintained by **[d4em0n](https://github.com/d4em0n)** ·
-[n0psledbyte@gmail.com](mailto:n0psledbyte@gmail.com).
 
 The kit's integration code is **MIT licensed**. Upstream components retain their own licenses
 and Open WebUI branding. This is an independent integration, not an official Open WebUI or
