@@ -19,8 +19,10 @@ Chat, research, browse, create documents, and build interactive answers.<br>Your
 
 ---
 
-A reproducible stack built around **Open WebUI**, **Microsandbox/libkrun**, **Open Terminal**,
-**Frontier MCP Apps**, **Firecrawl**, and **WordCraft / PdfCraft / DeckCraft**.
+A reproducible stack built around **[Open WebUI][open-webui]**,
+**[Microsandbox][microsandbox] / [libkrun][libkrun]**, **[Open Terminal][open-terminal]**,
+**[Frontier UI][frontier-ui]** through **[MCP Apps][mcp-apps]**, **[Firecrawl][firecrawl]**,
+and **[WordCraft][wordcraft] / [PdfCraft][pdfcraft] / [DeckCraft][deckcraft]**.
 
 This started as my personal homeserver setup. The same repository now builds the stack
 I use, with private accounts, credentials, files, and configuration stored outside the image.
@@ -30,11 +32,11 @@ Use it as a starting point for your own self-hosted assistant.
 
 | | Experience | Powered by |
 | :---: | --- | --- |
-| 💬 | **Chat that remembers** — conversations, notes, document knowledge, memory, and scheduled tasks. | Open WebUI |
-| 🧭 | **Interactive answers** — maps, routes, galleries, charts, calculators, and controls. | Frontier + MCP Apps |
-| 🌐 | **Browse and research** — a sandboxed Chromium browser plus web search and page scraping. | Open Terminal + Firecrawl |
-| 📄 | **Create documents** — Word, PDF, and PowerPoint tools, with downloadable Frontier exports. | WordCraft · PdfCraft · DeckCraft |
-| 🧑‍💻 | **A workspace for each user** — persistent files, code execution, and a terminal in its own microVM. | Microsandbox + Open Terminal |
+| 💬 | **Chat that remembers** — conversations, notes, document knowledge, memory, and scheduled tasks. | [Open WebUI][open-webui] |
+| 🧭 | **Interactive answers** — maps, routes, galleries, charts, calculators, and controls. | [Frontier UI][frontier-ui] + [MCP Apps][mcp-apps] |
+| 🌐 | **Browse and research** — a sandboxed Chromium browser plus web search and page scraping. | [Open Terminal][open-terminal] + [Firecrawl][firecrawl] |
+| 📄 | **Create documents** — Word, PDF, and PowerPoint tools, with downloadable Frontier exports. | [WordCraft][wordcraft] · [PdfCraft][pdfcraft] · [DeckCraft][deckcraft] |
+| 🧑‍💻 | **A workspace for each user** — persistent files, code execution, and a terminal in its own microVM. | [Microsandbox][microsandbox] + [Open Terminal][open-terminal] |
 | 💾 | **Keep your state** — external storage, persistent secrets, restart recovery, and verified backup/restore commands. | Kit controller |
 
 Bring your own **OpenAI-compatible model endpoint and credentials**. Model access and billing
@@ -45,7 +47,7 @@ Craft apps run as headless engines; their full desktop editors are not streamed.
 
 ### 1. Check your host
 
-You'll need **Linux x86_64**, working **`/dev/kvm`**, Docker Engine with **Compose v2+**,
+You'll need **Linux x86_64**, working **`/dev/kvm`**, [Docker Engine][docker] with **[Compose v2+][compose]**,
 **Python 3.12+**, and **`iproute2`**. Ubuntu with rootful Docker is the tested starting point.
 
 ### 2. Start your stack
@@ -80,8 +82,8 @@ the microVMs. Allow several minutes; **`./kit logs`** shows progress.
 
 ## How it fits together
 
-Docker runs the trusted controller. **Microsandbox/libkrun runs Open WebUI and the user
-workspaces in microVMs**, using the official OCI images. The integration code lives in
+[Docker Compose][compose] runs the trusted controller. **[Microsandbox][microsandbox] / [libkrun][libkrun]
+runs Open WebUI and the user workspaces in microVMs**, using the official OCI images. The integration code lives in
 adapters and launchers; Open WebUI and Open Terminal core code stays unpatched.
 
 ```mermaid
@@ -116,6 +118,10 @@ private networks, host services, and cloud metadata remain blocked from those wo
 The controller runs without privileged mode or a Docker socket.
 
 [Explore the security boundaries →](docs/architecture.md)
+
+Thanks to these upstream projects and [libkrunfw][libkrunfw] for the foundations.
+Exact supported versions and digests live in [the version lockfile](versions.lock.json);
+licenses and attribution are collected in [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ## Choose your web-search setup
 
@@ -235,3 +241,17 @@ keeps kit fixes and related upstream reports connected.
 The kit's integration code is **MIT licensed**. Upstream components retain their own licenses
 and Open WebUI branding. This is an independent integration, not an official Open WebUI or
 ChatGPT distribution. No Enterprise Terminals code or API is used.
+
+[open-webui]: https://github.com/open-webui/open-webui
+[microsandbox]: https://github.com/superradcompany/microsandbox
+[libkrun]: https://github.com/libkrun/libkrun
+[libkrunfw]: https://github.com/libkrun/libkrunfw
+[open-terminal]: https://github.com/open-webui/open-terminal
+[frontier-ui]: https://github.com/Jumbomuffin777/Frontier-UI
+[mcp-apps]: https://github.com/modelcontextprotocol/ext-apps
+[firecrawl]: https://github.com/firecrawl/firecrawl
+[wordcraft]: https://github.com/storytold/wordcraft
+[pdfcraft]: https://github.com/storytold/pdfcraft
+[deckcraft]: https://github.com/storytold/deckcraft
+[docker]: https://docs.docker.com/engine/
+[compose]: https://docs.docker.com/compose/
