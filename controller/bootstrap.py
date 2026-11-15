@@ -89,6 +89,9 @@ def prepare(data=DATA):
     if settings["default_model"]:
         env["DEFAULT_MODELS"] = settings["default_model"]
     if settings["local_speech"]:
+        if (data / "webui/data/models/faster-whisper-base").is_dir():
+            env.update(WHISPER_MODEL="/app/backend/data/models/faster-whisper-base",
+                       WHISPER_COMPUTE_TYPE="int8", WHISPER_MODEL_AUTO_UPDATE="false")
         speech_key = data / "webui/config/speech-api-key"
         if not speech_key.exists():
             speech_key.write_text(secret("speech-key", data) + "\n")
