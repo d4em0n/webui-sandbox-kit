@@ -5,9 +5,9 @@ and `.dockerignore` exclude `.env`, data, caches, reports, virtual environments 
 Review `git status` and run the tests before adding files. Never copy a production database,
 VM catalogue, `.env`, provider key or account/workspace directory into the repository.
 
-Create your own GitHub repository and add its URL as the remote. This working tree does not
-create or publish an external repository automatically. Replace the README clone placeholder
-with the final URL when you publish. Preserve `LICENSE`, `licenses/` and third-party notices.
+Repository: `https://github.com/d4em0n/webui-sandbox-kit`. Fork it or create your own repository
+when sharing a variation. Installation never creates repositories or posts external issues.
+Preserve `LICENSE`, `licenses/` and third-party notices.
 
 Open WebUI retains its own license and branding rules; this kit does not rename/rebrand its
 UI or imply upstream endorsement. Open Terminal and Frontier retain their MIT notices.

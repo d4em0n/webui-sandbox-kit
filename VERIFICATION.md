@@ -74,3 +74,23 @@ The kit now documents corrective changes, personal iOS usage, upstream patch own
 linked issue reporting and migration. Optional local speech source and terminal-ID
 continuity support migration with external assets and settings; live migration acceptance
 is recorded separately once complete.
+
+## 2026-11-15 operator deployment from this repository
+
+The operator's personal service now runs from this kit's Docker-built controller and its
+independent Microsandbox runtime. Existing accounts, chats, files, memories, user workspaces,
+session secret and optional local speech assets were retained in external private storage.
+The previous deployment is stopped and retained for rollback. No private DNS or credentials
+were added to the repository; the public-origin/provider/search choices are instance settings.
+
+**51 unit/security checks pass**, including strict private-HTTPS provider policy. Staging
+passed 16 grouped checks: real gateway completion, retained accounts/workspaces/file links,
+PPTX-to-PDF preview, user denial, native MCP, document engines/exports, browser navigation/PNG,
+existing external Firecrawl search/scrape, local speech round trip and network isolation.
+After cutover, six API groups passed again and the existing HTTPS ingress returned healthy.
+The running image matched 33 tracked adapter/guest/Frontier source and lock files at promotion;
+the controller is unprivileged, without a Docker socket, and publishes only localhost:3000.
+
+These results cover one Linux homeserver. No second physical machine, host reboot or physical
+iPhone test was performed for this promotion. Conduit remains a separately installed client.
+Optional speech assets are externally supplied as documented, not a default bundled download.

@@ -38,7 +38,7 @@ alongside `max_users`, or disable Firecrawl/reduce VM sizes on smaller machines.
 ## Start
 
 ```sh
-git clone <your-published-repository-url> webui-sandbox-kit
+git clone https://github.com/d4em0n/webui-sandbox-kit.git
 cd webui-sandbox-kit
 ./kit init --provider-url https://api.openai.com/v1 --provider-key-file /path/to/api-key --model YOUR_MODEL_ID
 ./kit up
