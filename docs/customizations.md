@@ -36,11 +36,13 @@ do not invent an issue number or report an integration defect as an upstream reg
 ## Known gaps and external changes
 
 - **LIMIT-001: provider request size.** Large slide-image history can exceed provider byte
-  limits even within a model's token window. Smaller previews and optional native context
+  limits; tracked in [issue #1](https://github.com/d4em0n/webui-sandbox-kit/issues/1). Such
+  limits apply even within a model's token window. Smaller previews and optional native context
   compaction help; no automatic byte-budget/image-resize guard is included. The operator
   continued the same conversation successfully after switching DeepSeek to GPT-6.1 Sol.
 - **LIMIT-002: Conduit Office preview.** Reviewed client previews PDF/text/images, without
-  requesting Office-to-PDF conversion. Native Open with is a separate Conduit fork feature,
+  requesting Office conversion; tracked in [issue #2](https://github.com/d4em0n/webui-sandbox-kit/issues/2). It is not
+  an inline Office renderer. Native Open with is a separate Conduit fork feature,
   not an Office renderer in this kit. Use an actual PDF preview or an external editor.
 - **EXT-001: Conduit fork.** MCP sizing, cache/scroll/gesture changes and native document
   handoff live in a separate client repository. See [personal setup](personal-setup.md).
