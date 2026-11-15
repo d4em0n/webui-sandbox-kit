@@ -17,8 +17,9 @@ This is an inventory of verified change groups, not a count of historical edits.
 | FIX-006 | Cached gateway DNS could outlive sandbox policy bindings; disable pooled DNS caching while retaining connection pooling. | `controller/bootstrap.py` | Live deployment idle-interval reproduction; kit initializes `AIOHTTP_POOL_DNS_TTL=0` |
 | FIX-007 | Frontier defaulted to 1,600px without a host maximum, and viewport measurements prevented shrink; honor host bounds and measure natural body bounds. | `frontier/mcp-apps/app.js`, `build.py` | Synthetic SDK iframe expand/shrink verification recorded in `VERIFICATION.md` |
 | FIX-008 | External search route registered before the manager's HTTP client existed; resolve that client when handling requests after startup. | `controller/firecrawl.py`, `main.py` | `tests/test_firecrawl.py` registers the route before assigning the client; staged container startup |
+| FIX-009 | Private HTTPS model gateways failed closed under strict hostname policy without authority inspection; enable TLS inspection and use the guest system CA bundle. | `controller/runtime.py`, `bootstrap.py` | `tests/test_package.py` private HTTPS policy case; real staged gateway completion |
 
-These are initially **kit-owned** fixes, not eight confirmed upstream bugs. Some correct
+These are initially **kit-owned** fixes, not nine confirmed upstream bugs. Some correct
 our own adapter assumptions. Upstream issue/PR links are pending unless explicitly listed;
 do not invent an issue number or report an integration defect as an upstream regression.
 

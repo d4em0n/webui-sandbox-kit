@@ -26,6 +26,8 @@ class WebUI:
         desired = {key: self.settings[key] for key in ["webui_cpus", "webui_memory_mib", "root_disk_gib",
                                                        "provider_allow_private", "provider_url"]}
         desired["image"] = image
+        provider = urlparse(self.settings["provider_url"])
+        desired["tls_intercept"] = self.settings["provider_allow_private"] and provider.scheme == "https"
         record = DATA / "config/webui-vm.json"
         if code == 0:
             if record.exists() and json.loads(record.read_text()) == desired:
@@ -41,7 +43,6 @@ class WebUI:
             "--net-default-egress", "deny", "--net-rule", "allow@public:tcp:80,allow@public:tcp:443,allow@dns",
             "--net-rule", "allow@host:tcp:18800", "--label", "application=webui-sandbox-kit"]
         if self.settings["provider_allow_private"]:
-            provider = urlparse(self.settings["provider_url"])
             port = provider.port or (443 if provider.scheme == "https" else 80)
             try:
                 address = ipaddress.ip_address(provider.hostname)
@@ -49,6 +50,9 @@ class WebUI:
             except ValueError:
                 hostname = "domain=" + provider.hostname
             args += ["--no-dns-rebind-protection", "--net-rule", f"allow@{hostname}:tcp:{port}"]
+            if provider.scheme == "https":
+                # Strict hostname rules require HTTP authority visibility inside TLS.
+                args += ["--tls-intercept"]
         await self.manager.command(*args, image, timeout=1200)
         atomic_json(record, desired)
 

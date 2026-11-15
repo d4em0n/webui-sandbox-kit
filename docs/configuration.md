@@ -45,6 +45,11 @@ Unknown settings and invalid types/URLs are rejected. Provider credentials belon
 `provider-key` (0600). Never place them in a URL. The owner configures model access; no
 particular gateway vendor, model name, domain, Tailscale or GPU is assumed.
 
+Private HTTPS providers opt into TLS inspection so strict hostname policy can check the
+HTTP authority. The guest trusts the runtime CA through its system bundle; upstream TLS
+verification stays enabled. This grants only the configured provider host/port, not general
+private-network access. Public-only providers and user workspaces keep their existing policy.
+
 The configured `default_model` is published under its unchanged provider ID with a read
 grant for approved users after the first admin is created. Existing model records and
 their access controls are retained. Publish additional models through the native admin UI.

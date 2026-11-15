@@ -65,6 +65,8 @@ def prepare(data=DATA):
         "ENABLE_OLLAMA_API": "false", "OPENAI_API_BASE_URLS": settings["provider_url"],
         "OPENAI_API_KEYS": provider_key.read_text().strip() if provider_key.exists() else "",
         "AIOHTTP_POOL_DNS_TTL": "0", "ENABLE_TOOL_SERVERS": "true",
+        "SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+        "REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt",
         "TOOL_SERVER_CONNECTIONS": json.dumps(tools), "TERMINAL_SERVER_CONNECTIONS": json.dumps([terminal]),
         "DEFAULT_MODEL_METADATA": json.dumps({"toolIds": ["server:mcp:frontier", "server:mcp:craft"],
             "terminalId": settings["terminal_id"], "capabilities": {"terminal": True, "file_upload": True, "web_search": True, "builtin_tools": True},

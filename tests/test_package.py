@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from contextlib import asynccontextmanager
 from types import SimpleNamespace
+from unittest.mock import AsyncMock, patch
 
 from aiohttp import ServerDisconnectedError
 from controller.runtime import WebUI
@@ -109,6 +110,21 @@ class BackupTests(unittest.TestCase):
 
 
 class HealthTests(unittest.IsolatedAsyncioTestCase):
+    async def test_private_https_provider_retains_strict_policy_with_interception(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            prepare(root)
+            settings = load_settings(root)
+            settings.update(provider_allow_private=True, provider_url='https://gateway.example.com/v1')
+            manager = SimpleNamespace(command=AsyncMock(return_value=(1, b'')))
+            with patch('controller.runtime.DATA', root):
+                await WebUI(manager, settings).create()
+            args = manager.command.call_args.args
+            self.assertIn('--tls-intercept', args)
+            self.assertIn('allow@domain=gateway.example.com:tcp:443', args)
+            self.assertNotIn('--net-strict=false', args)
+            self.assertNotIn('allow@private', ','.join(args))
+
     async def test_forwarded_port_without_ready_guest_does_not_abort_startup(self):
         @asynccontextmanager
         async def disconnected(*args, **kwargs):
