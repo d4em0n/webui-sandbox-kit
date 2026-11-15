@@ -18,3 +18,10 @@ license does not relicense any upstream binary/image or the vendored Frontier co
 GitHub CI runs unit/security checks. KVM integration requires an isolated Linux machine;
 do not run untrusted pull-request code on a personal self-hosted runner. This repository
 does not use the separate Enterprise Terminals orchestrator or its APIs.
+
+Describe the project as a personal, reproducible self-hosted assistant integration. The
+[personal setup](personal-setup.md) explains the author's iOS client choice without coupling
+installers to private infrastructure. Review [customizations](customizations.md) before each
+release; keep remaining client/provider limitations visible. The bug-report form and
+[contribution workflow](../CONTRIBUTING.md) support linked kit/upstream issues once published;
+no issue or upstream report is automatically created by deployment.

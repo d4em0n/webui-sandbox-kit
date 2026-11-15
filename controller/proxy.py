@@ -8,7 +8,8 @@ HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization", 
 
 
 async def relay(request, client, target, headers=None):
-    headers = headers or {key: value for key, value in request.headers.items() if key.lower() not in HOP}
+    if headers is None:
+        headers = {key: value for key, value in request.headers.items() if key.lower() not in HOP}
     if request.headers.get("Upgrade", "").lower() == "websocket":
         headers = {key: value for key, value in headers.items() if not key.lower().startswith("sec-websocket-")}
         async with client.ws_connect(target, headers=headers, max_msg_size=32 * 1024 * 1024) as upstream:

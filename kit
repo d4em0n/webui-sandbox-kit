@@ -32,8 +32,10 @@ def compose(*args, check=True, capture=False):
     settings = json.loads((Path(env["DATA_DIR"]) / "controller/config/settings.json").read_text())
     command = ["docker", "compose", "--project-directory", str(ROOT), "--env-file", str(ROOT / ".env"),
                "--file", str(ROOT / "compose.yaml")]
-    if settings.get("firecrawl", True):
+    if settings.get("firecrawl", True) and settings.get("firecrawl_mode", "bundled") == "bundled":
         command += ["--profile", "web"]
+    if settings.get("firecrawl_mode") == "external" and env.get("FIRECRAWL_NETWORK"):
+        command += ["--file", str(ROOT / "compose.external-firecrawl.yaml")]
     return subprocess.run([*command, *args], cwd=ROOT, env=env, check=check, text=True,
                           stdout=subprocess.PIPE if capture else None)
 
@@ -64,6 +66,14 @@ def initialize(args):
             settings[key] = value
     if args.no_firecrawl:
         settings["firecrawl"] = False
+    if getattr(args, "bundled_firecrawl", False):
+        settings.update(firecrawl=True, firecrawl_mode="bundled", firecrawl_url="http://firecrawl-api:3002")
+    if getattr(args, "firecrawl_url", None):
+        settings.update(firecrawl=True, firecrawl_mode="external", firecrawl_url=args.firecrawl_url)
+    if getattr(args, "firecrawl_key_file", None):
+        upstream_key = config / "firecrawl-upstream-key"
+        upstream_key.write_text(Path(args.firecrawl_key_file).read_text().strip() + "\n")
+        upstream_key.chmod(0o600)
     if args.allow_private_provider:
         settings["provider_allow_private"] = True
     port = str(args.port or old.get("WEBUI_PORT", "3000"))
@@ -82,6 +92,8 @@ def initialize(args):
     values = {**old, "COMPOSE_PROJECT_NAME": args.project or old.get("COMPOSE_PROJECT_NAME", "webui-sandbox-kit"),
               "DATA_DIR": str(directory), "WEBUI_PORT": port, "BIND_ADDRESS": old.get("BIND_ADDRESS", "127.0.0.1"),
               "KIT_UID": str(os.getuid()), "KIT_GID": str(os.getgid()), "KVM_GID": str(os.stat("/dev/kvm").st_gid)}
+    if getattr(args, "firecrawl_network", None):
+        values["FIRECRAWL_NETWORK"] = args.firecrawl_network
     values["KIT_SUBNET"] = args.subnet or old.get("KIT_SUBNET") or available_subnet(values["COMPOSE_PROJECT_NAME"])
     network = ipaddress.ip_network(values["KIT_SUBNET"], strict=True)
     if network.version != 4 or not network.is_private or network.prefixlen < 24:
@@ -174,7 +186,12 @@ def main():
     init.add_argument("--provider-key-file")
     init.add_argument("--model")
     init.add_argument("--allow-private-provider", action="store_true")
-    init.add_argument("--no-firecrawl", action="store_true")
+    search = init.add_mutually_exclusive_group()
+    search.add_argument("--no-firecrawl", action="store_true")
+    search.add_argument("--bundled-firecrawl", action="store_true", help="Use the bundled Firecrawl sidecars")
+    search.add_argument("--firecrawl-url", help="Use an existing Firecrawl API root; omit /v1 or /v2")
+    init.add_argument("--firecrawl-key-file", help="Optional API key for existing Firecrawl; stored outside source")
+    init.add_argument("--firecrawl-network", help="Optional existing Docker network for external Firecrawl")
     commands.add_parser("doctor")
     commands.add_parser("up")
     commands.add_parser("down", help="Remove this project's containers/network; retain all external data")

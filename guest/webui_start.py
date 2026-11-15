@@ -31,6 +31,9 @@ def cleanup(*_):
 
 signal.signal(signal.SIGTERM, cleanup)
 signal.signal(signal.SIGINT, cleanup)
+if os.environ.get("KIT_LOCAL_SPEECH") == "true":
+    speech_env = {**os.environ, "PYTHONPATH": "/app/backend/data/deps/speech"}
+    children.append(subprocess.Popen(["python", "/run/kit/guest/speech_server.py"], env=speech_env))
 for command, cwd in [(["python", "/run/kit/frontier/mcp-apps/server.py"], "/app/backend"),
                      (["python", "/run/kit/guest/craft_mcp.py"], "/app/backend"),
                      (["python", "/run/kit/guest/publish_model.py"], "/app/backend"),

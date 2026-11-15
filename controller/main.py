@@ -1,7 +1,6 @@
 """Container entrypoint: one trusted controller, independent service and VM lifecycles."""
 import asyncio
 import contextlib
-import hmac
 import logging
 import os
 import signal
@@ -11,9 +10,10 @@ from aiohttp import web
 from .bootstrap import prepare
 from .catalog import own_home
 from .craft import Craft
+from .firecrawl import endpoint as firecrawl_endpoint
 from .proxy import relay
 from .runtime import WebUI
-from .settings import DATA, secret
+from .settings import DATA
 from .terminal import Manager
 
 
@@ -29,16 +29,7 @@ async def serve():
     internal.cleanup_ctx.append(manager.lifecycle)
     internal.router.add_post("/craft/{operation}", craft.endpoint)
 
-    async def firecrawl(request):
-        if not settings["firecrawl"]:
-            raise web.HTTPNotFound()
-        if not hmac.compare_digest(request.headers.get("Authorization", ""), "Bearer " + secret("firecrawl-key")):
-            raise web.HTTPUnauthorized(text="Invalid search credentials")
-        headers = {key: value for key, value in request.headers.items()
-                   if key.lower() not in ("authorization", "host", "content-length", "connection", "transfer-encoding")}
-        return await relay(request, manager.client, settings["firecrawl_url"] + request.raw_path.removeprefix("/firecrawl"), headers)
-
-    internal.router.add_route("*", "/firecrawl/{path:.*}", firecrawl)
+    internal.router.add_route("*", "/firecrawl/{path:.*}", firecrawl_endpoint(settings, manager.client))
     internal.router.add_route("*", "/{path:.*}", manager.proxy)
     internal_runner = web.AppRunner(internal, access_log=None, shutdown_timeout=20)
     await internal_runner.setup()

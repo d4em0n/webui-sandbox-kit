@@ -76,7 +76,9 @@ policy, or rerun `./kit init` for provider/public URL changes, then `./kit up`.
 Kit-owned provider, terminal and MCP connections are reapplied on restart; other WebUI settings
 remain in its database. Resource settings initially apply to new user VMs.
 
-Use `--no-firecrawl` at init to omit the web-service containers. A private model endpoint is
+Use `--no-firecrawl` to disable web search, or `--firecrawl-url URL` with optional
+`--firecrawl-key-file FILE` to reuse an existing service without bundled containers.
+See [configuration](docs/configuration.md). A private model endpoint is
 explicitly opted into with `--allow-private-provider`; only that hostname/address and port
 are added to the WebUI VM's policy. User workspaces still cannot reach private networks.
 
@@ -88,6 +90,11 @@ are added to the WebUI VM's policy. User workspaces still cannot reach private n
 - [Features, client limitations and Craft sessions](docs/limitations.md)
 - [Verification and development](docs/testing.md)
 - [Publishing and upstream notices](docs/publishing.md)
+- [Personal setup and Conduit on iOS](docs/personal-setup.md)
+- [Customization ledger and known gaps](docs/customizations.md)
+- [Contributing and linked upstream issues](CONTRIBUTING.md)
+- [Upstream source and patch policy](docs/upstream-maintenance.md)
+- [Migrating an existing installation](docs/migration.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 The kit's integration code is MIT licensed. Upstream components retain their own licenses;

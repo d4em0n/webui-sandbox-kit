@@ -1,0 +1,8 @@
+# Optional controller-only attachment. No existing service or network is recreated.
+services:
+  controller:
+    networks: [backend, existing-firecrawl]
+networks:
+  existing-firecrawl:
+    external: true
+    name: ${FIRECRAWL_NETWORK:?Set with ./kit init --firecrawl-network NAME}

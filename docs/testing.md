@@ -35,3 +35,10 @@ browser capability URLs, chat data or user files. Report summaries should omit s
 The Frontier renderer build asserts upstream extraction anchors; a changed upstream HTML
 layout must be reviewed rather than silently accepted. Build with the lockfile; no guest
 Node runtime is needed. Keep `frontier/frontier_ui.py` independent and unchanged.
+
+For the independent iframe height regression, run `npm ci --ignore-scripts` and
+`npm run build` in `frontier/mcp-apps`, then
+`FRONTIER_SIZING_REPORT=/tmp/frontier-sizing.json node tests/sizing.mjs`.
+Install Playwright/Chromium in a QA environment, or set `PLAYWRIGHT_MODULE` to its
+module path. The synthetic real-SDK host checks uncapped tall content, shrinking,
+explicit host limits and JavaScript exceptions; no running stack/account is used.

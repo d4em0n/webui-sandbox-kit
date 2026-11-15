@@ -36,7 +36,9 @@ Microsandbox home here. The container's `/data` path is stable across machines.
 - `webui_cpus`, `webui_memory_mib`: default 4/4096.
 - `user_cpus`, `user_memory_mib`, `max_users`: default 2/2048/2.
 - `signup`: false by default. Enabled signups get the `pending` role until approved.
-- `firecrawl`: true by default; `firecrawl_url` targets the bundled service via Docker DNS.
+- `firecrawl`: true by default; `firecrawl_mode` is `bundled` or `external`, with `firecrawl_url` as the API root.
+- `terminal_id`: defaults to `workspace`; preserve the previous ID when migrating chat history.
+- `local_speech`: opt-in launcher for Piper; requires installed assets/packages (see [migration](migration.md)).
 - `root_disk_gib`: sparse managed root overlays, default 30.
 
 Unknown settings and invalid types/URLs are rejected. Provider credentials belong in
@@ -57,3 +59,25 @@ listener; configure your own TLS/authenticated network access before doing so.
 
 The UI retains native Open WebUI branding. Creating a custom visual identity does not
 change upstream license conditions.
+
+## Reuse an existing Firecrawl
+
+```sh
+./kit init --firecrawl-url https://search.example.com --firecrawl-key-file /private/firecrawl-key
+./kit up
+```
+
+The URL is an API root, without `/v1` or `/v2`. The key is optional for an unauthenticated
+self-hosted service. Use HTTPS remotely. API versions are chosen by the pinned WebUI;
+the relay preserves paths/payloads. The upstream key stays in the protected
+`controller/config/firecrawl-upstream-key`; the guest uses a separate internal token.
+
+For another Docker stack, add `--firecrawl-network NETWORK` and use an API URL reachable
+on that network, such as `http://firecrawl-api:3002`. Only the controller joins it; the kit
+does not manage that service/network. A host endpoint can use `http://host.docker.internal:PORT`
+if it accepts connections from Docker's host gateway. Host-loopback-only services are not
+reachable that way. External mode does not start the bundled API/browser/database/queue.
+
+`--no-firecrawl` disables integration; `--bundled-firecrawl` selects the included stack again.
+Reinitialization preserves keys/settings. Stop a running bundled kit before changing modes;
+review its old containers separately instead of removing shared services.

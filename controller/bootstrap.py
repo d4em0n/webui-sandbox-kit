@@ -47,7 +47,7 @@ def prepare(data=DATA):
         "public_web": True, "auto_browser": True, "identity_in_guest": True,
         "root_disk_gib": settings["root_disk_gib"],
     })
-    terminal = {"id": "workspace", "name": "My Workspace", "enabled": True,
+    terminal = {"id": settings["terminal_id"], "name": "My Workspace", "enabled": True,
                 "url": "http://host.microsandbox.internal:18800", "path": "/openapi.json",
                 "key": key, "auth_type": "bearer", "server_type": "terminal", "forward_cookies": False,
                 "config": {"working_directory_context": True, "user_shell_tools": "auto", "access_grants": GRANTS}}
@@ -67,7 +67,7 @@ def prepare(data=DATA):
         "AIOHTTP_POOL_DNS_TTL": "0", "ENABLE_TOOL_SERVERS": "true",
         "TOOL_SERVER_CONNECTIONS": json.dumps(tools), "TERMINAL_SERVER_CONNECTIONS": json.dumps([terminal]),
         "DEFAULT_MODEL_METADATA": json.dumps({"toolIds": ["server:mcp:frontier", "server:mcp:craft"],
-            "terminalId": "workspace", "capabilities": {"terminal": True, "file_upload": True, "web_search": True, "builtin_tools": True},
+            "terminalId": settings["terminal_id"], "capabilities": {"terminal": True, "file_upload": True, "web_search": True, "builtin_tools": True},
             "builtinTools": {"memory": True, "knowledge": True}, "defaultFeatureIds": ["web_search"]}),
         "DEFAULT_MODEL_PARAMS": json.dumps({"function_calling": "native", "system":
             "Use Frontier UI for interactive visuals. Use the private workspace for browser, code and file work. "
@@ -82,9 +82,15 @@ def prepare(data=DATA):
         "FIRECRAWL_API_BASE_URL": "http://host.microsandbox.internal:18800/firecrawl",
         "BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL": "true", "ENABLE_AUTOMATIONS": "true",
         "KIT_CONTROLLER_KEY": key, "KIT_PUBLIC_URL": settings["public_url"],
+        "KIT_LOCAL_SPEECH": str(settings["local_speech"]).lower(),
     }
     if settings["default_model"]:
         env["DEFAULT_MODELS"] = settings["default_model"]
+    if settings["local_speech"]:
+        speech_key = data / "webui/config/speech-api-key"
+        if not speech_key.exists():
+            speech_key.write_text(secret("speech-key", data) + "\n")
+            speech_key.chmod(0o600)
     atomic_json(data / "webui/config/environment.json", env)
     frontier = data / "webui/config/frontier.json"
     if not frontier.exists():

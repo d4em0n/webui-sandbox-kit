@@ -1,0 +1,47 @@
+name: Bug report
+description: Track a reproducible integration or client/provider compatibility problem.
+body:
+  - type: markdown
+    attributes:
+      value: Use synthetic examples. Remove tokens, credentials, private URLs and personal files from logs and screenshots.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Suspected component
+      options:
+        - Unknown / needs diagnosis
+        - Kit controller / provisioning / network
+        - Open WebUI integration
+        - Open Terminal / browser integration
+        - Frontier MCP Apps
+        - Craft document engines / exports
+        - Conduit / other client
+        - Model provider / gateway
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions and environment
+      description: Kit commit, pinned image versions, OS/architecture, KVM, client version/build and model/provider. No keys or private configuration.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Synthetic steps or fixture; say whether the problem reproduces upstream without the kit.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Include a sanitized error and what you actually verified.
+    validations:
+      required: true
+  - type: textarea
+    id: tracking
+    attributes:
+      label: Related tracking and workaround
+      description: Customization ID, related kit issue/PR/commit, upstream issue URL (if any), workaround and affected versions. Leave upstream ownership undecided if uncertain.

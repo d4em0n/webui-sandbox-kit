@@ -31,6 +31,7 @@ services:
     cpus: ${CONTROLLER_CPUS:-6}
     logging: *logs
     networks: [backend]
+    extra_hosts: ['host.docker.internal:host-gateway']
 
   firecrawl-api:
     profiles: [web]

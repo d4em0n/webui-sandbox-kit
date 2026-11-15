@@ -38,6 +38,9 @@ replace_once("function sendPrompt(t){post({type:'input:prompt:submit',text:Strin
 start = js.index("function openLink(u){")
 end = js.index("var lastH=", start)
 js = js[:start] + "function openLink(u){bridge.openLink(String(u));}\n" + js[end:]
+# Content bounds allow shrinking after a host has expanded the iframe viewport.
+replace_once("function reportHeight(){var h=Math.ceil(Math.max(document.body.scrollHeight,document.documentElement.scrollHeight));",
+             "function reportHeight(){var h=Math.ceil(document.body.getBoundingClientRect().height);")
 replace_once("post({type:'iframe:height',height:h});", "bridge.resize(h);")
 start = js.index("try{var pr=parent.document.documentElement;")
 end = js.index("function isDark()", start)

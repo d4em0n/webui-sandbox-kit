@@ -34,7 +34,10 @@ def load_settings(data=DATA):
         "max_users": 2,
         "signup": False,
         "firecrawl": True,
+        "firecrawl_mode": "bundled",
         "firecrawl_url": "http://firecrawl-api:3002",
+        "terminal_id": "workspace",
+        "local_speech": False,
         "root_disk_gib": 30,
     }
     path = data / "config/settings.json"
@@ -54,14 +57,21 @@ def load_settings(data=DATA):
             raise ValueError(f"{name} must be an HTTP(S) URL without embedded credentials")
         if name == "public_url" and (url.path not in ("", "/") or url.query or url.fragment):
             raise ValueError("public_url must be an origin without a subpath, query or fragment")
+        if name == "firecrawl_url" and (url.query or url.fragment):
+            raise ValueError("firecrawl_url must not contain a query or fragment")
+    if defaults["firecrawl_mode"] not in ("bundled", "external"):
+        raise ValueError("firecrawl_mode must be bundled or external")
     for name in ["webui_cpus", "webui_memory_mib", "user_cpus", "user_memory_mib", "max_users", "root_disk_gib"]:
         if type(defaults[name]) is not int or defaults[name] <= 0:
             raise ValueError(f"{name} must be a positive integer")
-    for name in ["signup", "firecrawl", "provider_allow_private"]:
+    for name in ["signup", "firecrawl", "provider_allow_private", "local_speech"]:
         if type(defaults[name]) is not bool:
             raise ValueError(f"{name} must be a boolean")
     if not isinstance(defaults["default_model"], str) or any(char.isspace() for char in defaults["default_model"]):
         raise ValueError("default_model must be a single model ID or an empty string")
+    if not isinstance(defaults["terminal_id"], str) or not defaults["terminal_id"] or any(
+        char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_" for char in defaults["terminal_id"]):
+        raise ValueError("terminal_id must contain letters, digits, hyphens or underscores")
     return defaults
 
 

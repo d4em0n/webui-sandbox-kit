@@ -58,3 +58,19 @@ The matching live adapter passed five checks for metadata propagation, an intact
 PPTX, PDF conversion, mobile-sized Chromium canvas rendering and service health.
 An iPhone Safari black-panel report remains unverified on a physical device; WebUI's viewer
 also uses filename extensions, so the wrong metadata alone does not establish that cause.
+
+## 2026-11-15 repository maintenance and external services
+
+**50 unit/security checks pass** after adding external Firecrawl mode. Synthetic HTTP
+tests cover separate upstream credentials, missing-key self-hosted services, preserved
+search/scrape paths and bodies, disabled/unauthenticated requests, no redirect replay,
+and exclusion of bundled services. The controller image built successfully.
+The later Frontier natural-height correction is now included: its build passes, and
+four real-SDK Chromium checks cover content over 1,600px, shrinking after a shorter
+result, explicit host height limits and no JavaScript exceptions. These are isolated
+checks; they do not add physical-iPhone or full clean-host certification.
+
+The kit now documents corrective changes, personal iOS usage, upstream patch ownership,
+linked issue reporting and migration. Optional local speech source and terminal-ID
+continuity support migration with external assets and settings; live migration acceptance
+is recorded separately once complete.

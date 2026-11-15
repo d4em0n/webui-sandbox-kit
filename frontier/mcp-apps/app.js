@@ -67,7 +67,7 @@ const bridge = {
       notice('The host could not open this link. Copy it to your browser:', url);
     }
   },
-  resize(height) { app.sendSizeChanged({height: Math.min(height, app.getHostContext()?.containerDimensions?.maxHeight ?? 1600)}); },
+  resize(height) { app.sendSizeChanged({height: Math.min(height, app.getHostContext()?.containerDimensions?.maxHeight ?? height)}); },
   download(name, text, mime) {
     if (app.getHostCapabilities()?.downloadFile) {
       const bytes = new TextEncoder().encode(text);
