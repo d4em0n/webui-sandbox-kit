@@ -19,8 +19,9 @@ This is an inventory of verified change groups, not a count of historical edits.
 | FIX-008 | External search route registered before the manager's HTTP client existed; resolve that client when handling requests after startup. | `controller/firecrawl.py`, `main.py` | `tests/test_firecrawl.py` registers the route before assigning the client; staged container startup |
 | FIX-009 | Private HTTPS model gateways failed closed under strict hostname policy without authority inspection; enable TLS inspection and use the guest system CA bundle. | `controller/runtime.py`, `bootstrap.py` | `tests/test_package.py` private HTTPS policy case; real staged gateway completion |
 | FIX-010 | Preserve private deployment defaults during migration: derive Secure cookies from HTTPS and explicitly disable telemetry/provider identity forwarding. | `controller/bootstrap.py` | `tests/test_package.py` HTTPS/privacy settings case |
+| FIX-011 | MCP SDK theme attributes did not activate Frontier's CSS/map theme classes; synchronize both classes with the host theme before notifying renderers. [Issue #3](https://github.com/d4em0n/webui-sandbox-kit/issues/3). | `frontier/mcp-apps/app.js` | `tests/theme.mjs`: dark/light contrast, opposite browser preferences, live theme changes and retained calculator state; browser CI |
 
-These are initially **kit-owned** fixes, not ten confirmed upstream bugs. Some correct
+These are initially **kit-owned** fixes, not confirmed upstream bugs. Some correct
 our own adapter assumptions. Upstream issue/PR links are pending unless explicitly listed;
 do not invent an issue number or report an integration defect as an upstream regression.
 

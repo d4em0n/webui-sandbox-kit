@@ -98,3 +98,13 @@ Optional speech assets are externally supplied as documented, not a default bund
 Post-promotion hardening adds an HTTPS-origin cookie/privacy regression: **52 unit/security
 checks pass**. Secure cookies follow the public origin; telemetry and provider identity
 forwarding are explicitly disabled. This updates integration defaults, not application cores.
+
+## 2026-11-16 Frontier theme adapter correction
+
+The real-SDK iframe reproduction failed in a dark host because SDK theme attributes did
+not activate the preserved renderer's CSS/map classes. FIX-011 synchronizes those classes;
+no upstream component or official application core is patched. Six Chromium cases now pass
+for dark/light control contrast, opposite browser preferences, host theme notifications,
+partial context updates, same-card re-rendering and retained calculator state. Four existing
+iframe-sizing cases and 52 Python unit/security checks also pass. Both browser suites run
+in hosted CI. These are isolated SDK/renderer checks, not physical-iPhone acceptance.

@@ -21,7 +21,12 @@ function notice(message, text) {
 }
 
 function theme(context) {
-  if (context?.theme) applyDocumentTheme(context.theme);
+  if (context?.theme) {
+    applyDocumentTheme(context.theme);
+    // Frontier's CSS and map renderer use classes; the SDK sets data-theme/color-scheme.
+    document.documentElement.classList.toggle('dark', context.theme === 'dark');
+    document.documentElement.classList.toggle('light', context.theme === 'light');
+  }
   if (context?.styles?.variables) applyHostStyleVariables(context.styles.variables);
   if (context?.styles?.css?.fonts) applyHostFonts(context.styles.css.fonts);
   document.dispatchEvent(new Event('iui-theme'));

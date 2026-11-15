@@ -42,3 +42,10 @@ For the independent iframe height regression, run `npm ci --ignore-scripts` and
 Install Playwright/Chromium in a QA environment, or set `PLAYWRIGHT_MODULE` to its
 module path. The synthetic real-SDK host checks uncapped tall content, shrinking,
 explicit host limits and JavaScript exceptions; no running stack/account is used.
+
+The same SDK host also checks dark/light styling, text/control contrast and calculator
+state across theme changes in `tests/theme.mjs`. After `npm ci --ignore-scripts`, install
+Chromium with `npx playwright install chromium` (Linux may also need `--with-deps`). Run
+`npm run build`, then `FRONTIER_SIZING_REPORT=/tmp/frontier-sizing.json
+FRONTIER_THEME_REPORT=/tmp/frontier-theme.json npm run test:browser` on one shell line.
+Both browser regressions run in GitHub CI. The original Frontier module stays unchanged.
