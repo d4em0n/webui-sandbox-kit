@@ -32,7 +32,7 @@ Use it as a starting point for your own self-hosted assistant.
 
 **One chat: browse → plan a Kyoto trip → create a DOCX → explore your workspace.**
 
-![Recorded workflow showing the itinerary, live calculator, terminal, Inbox and DOCX preview](docs/media/kyoto-workflow.gif)
+![Recorded workflow showing the itinerary, live calculator, terminal, Inbox and DOCX preview](docs/media/kyoto-workflow-ce7bb616040b.gif)
 
 <!-- Captured 2026-11-15 in a disposable kit installation with official locked images,
      a sample account, a scripted QA model and real browser/Frontier/WordCraft tools.
