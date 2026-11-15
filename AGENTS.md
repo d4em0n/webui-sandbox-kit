@@ -6,7 +6,9 @@ Use a separate Compose project, data directory and localhost port for QA.
 
 Keep Open WebUI/Open Terminal core images and `frontier/frontier_ui.py` unchanged.
 Host adaptation belongs in the controller or MCP adapters. Preserve upstream notices.
-Do not commit `.env`, instance data, credentials, reports containing sessions, or images.
+Do not commit `.env`, instance data, credentials, reports containing sessions, or runtime images.
+Documentation screenshots/GIFs are allowed under `docs/media/` when captured from an
+isolated synthetic demo, reviewed for private data, and accompanied by provenance.
 
 Run `python3 -m unittest discover -s tests -v` for unit/security checks.
 Full integration QA needs Linux/amd64, Docker Compose and `/dev/kvm`.
