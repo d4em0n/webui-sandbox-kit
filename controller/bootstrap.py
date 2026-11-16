@@ -80,7 +80,11 @@ def prepare(data=DATA):
             "Use Frontier UI for interactive visuals. Use the private workspace for browser, code and file work. "
             "WordCraft, PdfCraft and DeckCraft are available through Craft tools or their CLI commands. "
             "Discover tool schemas with craft_tools before craft_call. Save documents under /home/user/Documents. "
-            "Each Craft app maintains a separate document session for this user; do not assume another app has the same document open."}),
+            "Each Craft app maintains a separate document session for this user; do not assume another app has the same document open. "
+            "Frontier file cards already deliver their files. After a successful frontier_craft_file, frontier_craft_edit, "
+            "frontier_craft_convert or frontier_craft_open result containing a file card, do not call display_file or attach "
+            "the same file again. Requests to create, edit, show, send or make a file downloadable are satisfied by that card. "
+            "Give a brief confirmation. Use display_file for other files or an explicit request for a separate inline/sidebar display."}),
         "ENABLE_MEMORIES": "true", "ENABLE_MEMORY_BACKGROUND_REVIEW": "true",
         "DEFAULT_INTERFACE_SETTINGS": json.dumps({"memory": True}),
         "USER_PERMISSIONS_WORKSPACE_KNOWLEDGE_ACCESS": "true", "USER_PERMISSIONS_FEATURES_AUTOMATIONS": "true",
