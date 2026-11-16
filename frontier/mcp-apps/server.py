@@ -89,7 +89,8 @@ def wrap(method):
 
 for name in ("render_frontier_ui", "craft_file", "craft_open", "save_note", "craft_read", "craft_edit", "craft_convert", "craft_commands"):
     method = getattr(tools, name)
-    server.add_tool(wrap(method), name=name, description=inspect.getdoc(method), meta=META,
+    server.add_tool(wrap(method), name=name, description=inspect.getdoc(method),
+                    meta=META if name != "craft_commands" else None,
                     annotations=ToolAnnotations(readOnlyHint=name == "render_frontier_ui", destructiveHint=False, openWorldHint=True))
 
 # Network access is declared to the host, never inherited from Open WebUI's origin.

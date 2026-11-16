@@ -22,6 +22,18 @@ class ProtocolTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(set(schema["properties"]), {"spec"})
             self.assertEqual(render.meta["ui"]["resourceUri"], server.URI)
             self.assertEqual(render.meta["ui"]["visibility"], ["model", "app"])
+            commands = next(t for t in tools if t.name == "craft_commands")
+            self.assertFalse((commands.meta or {}).get("ui"))
+            self.assertTrue(all(t.meta == server.META for t in tools if t.name != "craft_commands"))
+
+    async def test_command_lookup_returns_text_without_an_app(self):
+        with patch.object(server.frontier, "_bridge_call", new_callable=AsyncMock) as bridge:
+            bridge.return_value = {"commands": "text.insert: Insert text"}
+            async with Client(server.server) as client:
+                result = await client.call_tool("craft_commands", {"app": "wordcraft", "search": "insert"})
+                self.assertFalse(result.is_error)
+                self.assertIsNone(result.structured_content)
+                self.assertIn("text.insert", result.content[0].text)
 
     async def test_resolver_reused_and_structured_result(self):
         fixture = json.loads((ROOT.parents[1] / "tests/kyoto.json").read_text())
