@@ -60,6 +60,10 @@ def as_result(value):
         # A Conduit bridge message is bounded to 256 KiB; fail explicitly rather than break its WebView.
         if len(json.dumps(spec).encode()) > 220_000:
             raise ValueError("Resolved card exceeds the mobile host limit. Split it into smaller cards.")
+        if any(block.get("type") == "file" for block in spec.get("blocks", [])):
+            summary = (str(summary) + " The file is already shown in this Frontier card. "
+                       "Do not call display_file or add another attachment for the same file "
+                       "unless the user explicitly requests a separate display.")
         return CallToolResult(content=[TextContent(type="text", text=str(summary))], structuredContent={"spec": spec})
     return CallToolResult(content=[TextContent(type="text", text=str(value))],
                           isError=isinstance(value, str) and value.startswith("Frontier UI could not"))

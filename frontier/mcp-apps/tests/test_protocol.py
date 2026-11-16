@@ -72,11 +72,25 @@ class ProtocolTests(unittest.IsolatedAsyncioTestCase):
                 edited = await client.call_tool("craft_edit", {"file": "Synthetic.docx", "replace_json": '{"Original":"Edited"}'})
             for result in (created, edited):
                 self.assertFalse(result.is_error)
+                self.assertIn("Do not call display_file", result.content[0].text)
                 block = result.structured_content["spec"]["blocks"][0]
                 self.assertEqual(block["preview_url"], base + "/document-preview/?file_id=synthetic-id")
                 self.assertEqual(block["url"], url)
             self.assertEqual(edited.structured_content["spec"]["blocks"][0]["preview"],
                              "data:image/jpeg;base64,synthetic-thumbnail")
+
+    async def test_duplicate_display_guidance_only_applies_to_file_cards(self):
+        spec = {"blocks": [{"type": "file", "name": "Synthetic.csv", "url": "https://webui.example/file"}]}
+        result = server.as_result((spec, "File created."))
+        self.assertEqual(result.structured_content, {"spec": spec})
+        self.assertTrue(result.content[0].text.startswith("File created."))
+        self.assertIn("Do not call display_file", result.content[0].text)
+        self.assertIn("unless the user explicitly requests", result.content[0].text)
+        for value in (({"blocks": [{"type": "text", "md": "Hello"}]}, "Card shown."),
+                      "Frontier UI could not create the file", "Command lookup text"):
+            result = server.as_result(value)
+            self.assertEqual(result.content[0].text, value[1] if isinstance(value, tuple) else value)
+            self.assertEqual(bool(result.is_error), isinstance(value, str) and value.startswith("Frontier UI could not"))
 
     async def test_resolver_reused_and_structured_result(self):
         fixture = json.loads((ROOT.parents[1] / "tests/kyoto.json").read_text())
