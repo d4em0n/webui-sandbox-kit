@@ -57,7 +57,7 @@ def install(frontier):
         return pick["name"], data, pick["id"]
 
     async def store_file(user, name, data, mime):
-        form = aiohttp.FormData()
+        form = aiohttp.FormData(quote_fields=False)
         form.add_field("file", data, filename=name, content_type=mime)
         result = await api("/api/v1/files/?process=false", method="POST", data=form)
         fid = result["id"]
