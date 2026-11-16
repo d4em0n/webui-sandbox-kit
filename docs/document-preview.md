@@ -19,6 +19,12 @@ with WebUI's browser fallback if conversion is unavailable. Spreadsheet styles,
 merged cells and tabs are supported; this does not add Excel chart fidelity.
 Reopening reads current bytes; it does not preserve edits or interactive state.
 
+Frontier file cards include **Open preview** beside **Download** for supported
+documents stored through WebUI's Files API. The button opens this page using only
+the file ID; normal browser login and file permissions still apply. Existing
+thumbnails and downloads remain available. MCP hosts handle the standard open-link
+request; an authenticated in-app browser depends on the mobile client's support.
+
 The adapter selects PDF.js's supplied legacy build for WebViews without newer
 TypedArray methods. Its small PDF pan/zoom adapter lets single-finger swipes at
 1x scroll multipage documents; pinch and zoomed panning remain upstream behavior.

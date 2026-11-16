@@ -35,6 +35,7 @@ do not invent an issue number or report an integration defect as an upstream reg
 | INT-003 | Per-user headless Craft engines, native MCP discovery/calls and Frontier exports. | `controller/craft.py`, `guest/craft_*.py`, `guest/frontier_craft_bridge.py` |
 | INT-004 | Pinned independent deployment, external state, provider setup, Firecrawl and backup/recovery. | `compose.yaml`, `versions.lock.json`, `controller/`, `scripts/` |
 | INT-005 | Optional [document-only preview page](document-preview.md), compiled from pinned WebUI components and served by the adapter; official application images unchanged. | `document-preview/`, `controller/document_preview.py`, `scripts/build_document_preview.py` |
+| INT-006 | Frontier file cards link supported WebUI files to the document viewer through the standard MCP open-link request; existing downloads and thumbnails remain. | `frontier/mcp-apps/server.py`, `build.py` |
 
 ## Known gaps and external changes
 

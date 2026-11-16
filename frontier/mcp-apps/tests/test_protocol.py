@@ -1,5 +1,6 @@
 """Protocol tests exercise the real Python MCP SDK without an HTTP listener."""
 import json
+import base64
 import sys
 import unittest
 from pathlib import Path
@@ -34,6 +35,48 @@ class ProtocolTests(unittest.IsolatedAsyncioTestCase):
                 self.assertFalse(result.is_error)
                 self.assertIsNone(result.structured_content)
                 self.assertIn("text.insert", result.content[0].text)
+
+    async def test_file_preview_links_only_identify_supported_local_files(self):
+        base = "https://webui.example"
+        blocks = [{"type": "file", "format": fmt, "url": base + "/api/v1/files/synthetic-id/content"}
+                  for fmt in ("pdf", "docx", "pptx", "xlsx", "xls", "png")]
+        blocks += [{"type": "file", "format": "docx", "url": url} for url in (
+            "https://other.example/api/v1/files/synthetic-id/content",
+            base + "/api/v1/files/synthetic-id/content?token=untrusted",
+            base + "/api/v1/files/../content",
+            None,
+        )]
+        with patch.object(server.openwebui, "PUBLIC", base):
+            spec = await server.tools._card({"blocks": blocks})
+        for block in spec["blocks"][:5]:
+            self.assertEqual(block["preview_url"], base + "/document-preview/?file_id=synthetic-id")
+            self.assertEqual(block["url"], base + "/api/v1/files/synthetic-id/content")
+        self.assertTrue(all("preview_url" not in block for block in spec["blocks"][5:]))
+
+    async def test_created_and_edited_files_share_preview_and_download_card(self):
+        base = "https://webui.example"
+        url = base + "/api/v1/files/synthetic-id/content"
+        data = base64.b64encode(b"Synthetic document").decode()
+        with patch.object(server.openwebui, "PUBLIC", base), \
+             patch.object(server.frontier, "_bridge_call", new_callable=AsyncMock) as bridge, \
+             patch.object(server.frontier, "_store_file", new_callable=AsyncMock, return_value=("synthetic-id", url)), \
+             patch.object(server.frontier, "_load_file", new_callable=AsyncMock,
+                          return_value=("Synthetic.docx", b"Original", "original-id")):
+            bridge.side_effect = [
+                {"name": "Synthetic.docx", "b64": data, "app": "wordcraft"},
+                {"name": "Synthetic edited.docx", "b64": data, "app": "wordcraft"},
+                {"preview": "synthetic-thumbnail"},
+            ]
+            async with Client(server.server) as client:
+                created = await client.call_tool("craft_file", {"format": "docx", "markdown": "Synthetic content"})
+                edited = await client.call_tool("craft_edit", {"file": "Synthetic.docx", "replace_json": '{"Original":"Edited"}'})
+            for result in (created, edited):
+                self.assertFalse(result.is_error)
+                block = result.structured_content["spec"]["blocks"][0]
+                self.assertEqual(block["preview_url"], base + "/document-preview/?file_id=synthetic-id")
+                self.assertEqual(block["url"], url)
+            self.assertEqual(edited.structured_content["spec"]["blocks"][0]["preview"],
+                             "data:image/jpeg;base64,synthetic-thumbnail")
 
     async def test_resolver_reused_and_structured_result(self):
         fixture = json.loads((ROOT.parents[1] / "tests/kyoto.json").read_text())

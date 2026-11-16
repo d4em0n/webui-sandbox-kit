@@ -2,6 +2,7 @@
 import inspect
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -28,6 +29,15 @@ class FrontierTools(frontier.Tools):
         spec.setdefault("_ui", {})["cdn"] = self.valves.maplibre_cdn
         if openwebui.PUBLIC:
             spec.setdefault("_ui", {})["base"] = openwebui.PUBLIC
+            for block in spec.get("blocks", []):
+                if block.get("type") != "file" or block.get("format") not in ("pdf", "docx", "pptx", "xlsx", "xls"):
+                    continue
+                url = block.get("url")
+                if not isinstance(url, str):
+                    continue
+                match = re.fullmatch(re.escape(openwebui.PUBLIC) + r"/api/v1/files/([a-zA-Z0-9_-]+)/content", url)
+                if match:
+                    block["preview_url"] = openwebui.PUBLIC + "/document-preview/?file_id=" + match[1]
         return spec
 
 

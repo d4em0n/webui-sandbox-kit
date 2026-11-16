@@ -42,6 +42,7 @@ jobs:
         env:
           FRONTIER_SIZING_REPORT: '${{ github.workspace }}/reports/frontier-sizing.json'
           FRONTIER_THEME_REPORT: '${{ github.workspace }}/reports/frontier-theme.json'
+          FRONTIER_FILES_REPORT: '${{ github.workspace }}/reports/frontier-files.json'
       - uses: actions/upload-artifact@v4
         if: always()
         with:

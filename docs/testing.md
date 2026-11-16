@@ -47,5 +47,7 @@ The same SDK host also checks dark/light styling, text/control contrast and calc
 state across theme changes in `tests/theme.mjs`. After `npm ci --ignore-scripts`, install
 Chromium with `npx playwright install chromium` (Linux may also need `--with-deps`). Run
 `npm run build`, then `FRONTIER_SIZING_REPORT=/tmp/frontier-sizing.json
-FRONTIER_THEME_REPORT=/tmp/frontier-theme.json npm run test:browser` on one shell line.
-Both browser regressions run in GitHub CI. The original Frontier module stays unchanged.
+FRONTIER_THEME_REPORT=/tmp/frontier-theme.json FRONTIER_FILES_REPORT=/tmp/frontier-files.json
+npm run test:browser` on one shell line. File-card checks cover preview/download host
+navigation, retained thumbnails and no eager document fetch. All browser regressions
+run in GitHub CI. The original Frontier module stays unchanged.

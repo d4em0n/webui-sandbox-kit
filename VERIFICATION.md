@@ -108,3 +108,21 @@ for dark/light control contrast, opposite browser preferences, host theme notifi
 partial context updates, same-card re-rendering and retained calculator state. Four existing
 iframe-sizing cases and 52 Python unit/security checks also pass. Both browser suites run
 in hosted CI. These are isolated SDK/renderer checks, not physical-iPhone acceptance.
+
+## 2026-11-16 Frontier file cards
+
+Text-only `craft_commands` no longer advertises a UI resource. The actual pinned
+WebUI MCP client returns its text without creating an app embed. A separate change
+adds **Open preview** beside Download on supported Frontier document cards, using
+normal authenticated Files APIs and the existing document viewer.
+
+55 controller unit/security and nine MCP protocol tests pass. Real-SDK browser
+checks cover file-card navigation, retained thumbnails/downloads and no eager file
+fetch, alongside the existing sizing/theme suites. A disposable WebUI instance
+created PDF/DOCX/PPTX/XLSX files and an edited DOCX through real Craft calls; preview
+and download worked for their owner, another account was denied and anonymous access
+required login. The chat had two file widgets and no command-lookup widget.
+
+Agent Device on Android verified both card actions reach the existing confirmed
+MCP link handler. No client code changed: generic authenticated in-app browsing is
+still separate work. No new physical-iPhone acceptance is claimed.

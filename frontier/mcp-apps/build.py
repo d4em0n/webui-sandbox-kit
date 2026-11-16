@@ -48,6 +48,9 @@ js = js[:start] + js[end:]
 replace_once("box.dataset.base=useLocal?'local':'openfreemap';", "bridge.trackMap(map);box.dataset.base=useLocal?'local':'openfreemap';")
 replace_once("function saveFile(name,text,mime){", "function saveFile(name,text,mime){if(bridge.download(name,text,mime))return;")
 replace_once("function download(name,text,mime){", "function download(name,text,mime){if(bridge.download(name,text,mime))return;")
+replace_once("if(UI.craft_desktop&&b.app){",
+             "if(b.preview_url){var pv=h('button','btn',[icon('ext'),txt('span','','Open preview')]);"
+             "pv.onclick=function(){I.openLink(b.preview_url);};bt.appendChild(pv);}if(UI.craft_desktop&&b.app){")
 replace_once(" CDN:'__CDN__'", " CDN:(S._ui&&S._ui.cdn)||'__CDN__'")
 replace_once(".then(function(r){var lib=r[0],useLocal=r[1];", ".then(function(r){if(!lifecycle.isActive())return;var lib=r[0],useLocal=r[1];")
 replace_once("window.addEventListener('load',", "lifecycle.onLoad(")

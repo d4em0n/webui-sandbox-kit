@@ -6,7 +6,7 @@
   "scripts": {
     "build": "python3 build.py && node build.mjs",
     "test": "python3 -m unittest discover -s tests -p 'test_*.py'",
-    "test:browser": "node tests/sizing.mjs && node tests/theme.mjs"
+    "test:browser": "node tests/sizing.mjs && node tests/theme.mjs && node tests/files.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "2.1.0"
