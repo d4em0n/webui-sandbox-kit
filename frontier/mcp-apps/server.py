@@ -51,7 +51,11 @@ server = MCPServer("Frontier UI", version="0.1.0", instructions=
     "Use render_frontier_ui for interactive visual answers with Frontier's existing JSON spec. "
     "Use actual photo search queries and real place coordinates. After the tool returns, give a brief summary. "
     "All interactive cards use MCP Apps. Craft file tools run in the caller's private workspace. "
-    "Desktop editor opening is unavailable; generated files have download cards.")
+    "Desktop editor opening is unavailable; generated files have download cards. "
+    "Frontier file cards already deliver their files. After a successful frontier_craft_file, frontier_craft_edit, "
+    "frontier_craft_convert or frontier_craft_open result containing a file card, do not call display_file or attach "
+    "the same file again. Requests to create, edit, show, send or make a file downloadable are satisfied by that card. "
+    "Give a brief confirmation. Use display_file for other files or an explicit request for a separate inline/sidebar display.")
 
 
 def as_result(value):

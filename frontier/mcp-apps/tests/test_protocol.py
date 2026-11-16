@@ -14,6 +14,12 @@ import server
 
 
 class ProtocolTests(unittest.IsolatedAsyncioTestCase):
+    async def test_initialize_delivers_file_presentation_instructions(self):
+        async with Client(server.server) as client:
+            self.assertIn("Frontier file cards already deliver their files", client.instructions)
+            self.assertIn("do not call display_file", client.instructions)
+            self.assertIn("explicit request for a separate inline/sidebar display", client.instructions)
+
     async def test_tool_schema_and_app_metadata(self):
         async with Client(server.server) as client:
             tools = (await client.list_tools()).tools
