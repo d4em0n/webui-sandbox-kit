@@ -10,10 +10,11 @@ from aiohttp import web
 from .bootstrap import prepare
 from .catalog import own_home
 from .craft import Craft
+from .document_preview import document_preview_routes
 from .firecrawl import endpoint as firecrawl_endpoint
 from .proxy import relay
 from .runtime import WebUI
-from .settings import DATA
+from .settings import CODE, DATA
 from .terminal import Manager
 
 
@@ -44,6 +45,7 @@ async def serve():
             raise web.HTTPBadGateway(text="Assistant is recovering; retry shortly.")
 
     public = web.Application(client_max_size=100 * 1024 * 1024)
+    public.add_routes(document_preview_routes(CODE / "document-preview/dist"))
     public.router.add_route("*", "/{path:.*}", frontend)
     public_runner = web.AppRunner(public, access_log=None, shutdown_timeout=20)
     await public_runner.setup()

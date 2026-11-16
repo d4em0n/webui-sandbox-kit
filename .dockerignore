@@ -10,3 +10,5 @@ reports
 .agent-memory
 docs/media
 
+**/.upstream
+**/.svelte-kit

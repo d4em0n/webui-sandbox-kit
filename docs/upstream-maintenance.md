@@ -3,7 +3,9 @@
 The integration repository owns adapters and configuration, not full forks of every app.
 
 - **Open WebUI / Open Terminal:** official OCI image digests in `versions.lock.json`.
-  No source checkout, submodule or core patch is required. Our controller/guest adapters
+  No application core patch is required. The optional [document viewer](document-preview.md)
+  fetches checksum-pinned WebUI source at build time to compile its existing preview
+  components into a separate adapter page; the official images remain unchanged. Our controller/guest adapters
   are source files with tests, included automatically in the built image.
 - **Frontier UI:** original `frontier/frontier_ui.py` is a vendored snapshot of the locked
   revision, with its license. The separate MCP Apps adapter reuses its renderer; build

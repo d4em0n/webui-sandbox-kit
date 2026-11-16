@@ -38,5 +38,10 @@
     "revision": "74ef48595ff685a2f84893f9c4c5d9e15b075cc4",
     "repository": "https://github.com/Jumbomuffin777/Frontier-UI",
     "adapter_sdk": "2.1.0"
+  },
+  "document_preview": {
+    "revision": "b0e6098e940942281d9c83f3529ea117287a3a22",
+    "url": "https://codeload.github.com/open-webui/open-webui/tar.gz/b0e6098e940942281d9c83f3529ea117287a3a22",
+    "sha256": "d62650bc91729bcc9bd4abf627bebafbcfd278455a7bd4ecc9053f61f3782ecf"
   }
 }

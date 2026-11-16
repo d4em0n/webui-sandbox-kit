@@ -32,3 +32,10 @@ The root MIT license covers this kit's original integration code, not upstream a
 
 Review upstream license changes when updating pins. Publishing this source repository does
 not transfer model-provider credentials, accounts or licenses, or grant a model subscription.
+
+## Document preview
+
+The adapter page compiles unmodified preview components from Open WebUI at the
+revision/checksum in `versions.lock.json`, with its locked dependencies. Official
+WebUI/Terminal images remain unchanged. The built viewer includes Open WebUI
+LICENSE/LICENSE_HISTORY and dependency notices under `/document-preview/licenses/`.

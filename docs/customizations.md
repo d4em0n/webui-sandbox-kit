@@ -33,6 +33,7 @@ do not invent an issue number or report an integration defect as an upstream reg
 | INT-002 | Frontier MCP Apps resource/tool bridge, caller-private file/note actions; original Frontier module retained. | `frontier/mcp-apps/`, `frontier/frontier_ui.py` |
 | INT-003 | Per-user headless Craft engines, native MCP discovery/calls and Frontier exports. | `controller/craft.py`, `guest/craft_*.py`, `guest/frontier_craft_bridge.py` |
 | INT-004 | Pinned independent deployment, external state, provider setup, Firecrawl and backup/recovery. | `compose.yaml`, `versions.lock.json`, `controller/`, `scripts/` |
+| INT-005 | Optional [document-only preview page](document-preview.md), compiled from pinned WebUI components and served by the adapter; official application images unchanged. | `document-preview/`, `controller/document_preview.py`, `scripts/build_document_preview.py` |
 
 ## Known gaps and external changes
 

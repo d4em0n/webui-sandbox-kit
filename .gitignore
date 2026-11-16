@@ -12,3 +12,8 @@ dist/
 *.zip
 .agent-memory/
 
+# Reproducible document viewer build inputs/output.
+document-preview/.upstream/
+document-preview/.svelte-kit/
+document-preview/dist/
+document-preview/node_modules
