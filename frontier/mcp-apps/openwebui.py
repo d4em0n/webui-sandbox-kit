@@ -4,6 +4,7 @@ No service account or database access is needed. The application still checks
 ownership and permissions on every API request.
 """
 import contextvars
+import base64
 import os
 
 import aiohttp
@@ -11,6 +12,9 @@ import aiohttp
 BASE = os.environ.get("OPENWEBUI_BASE_URL", "").rstrip("/")
 PUBLIC = os.environ.get("OPENWEBUI_PUBLIC_URL", BASE).rstrip("/")
 authorization = contextvars.ContextVar("frontier_authorization", default="")
+file_context = contextvars.ContextVar("frontier_file_context", default=None)
+CRAFT = {"url": "http://host.microsandbox.internal:18800/craft",
+         "token": os.environ.get("KIT_CONTROLLER_KEY", ""), "shots": False}
 
 
 async def api(path, *, method="GET", body=None, data=None, raw=False):
@@ -27,12 +31,17 @@ def install(frontier):
         return
 
     async def bridge_call(session, config, path, payload, timeout=60):
+        context = file_context.get()
+        if path == "/inspect" and context is not None:
+            payload = {**payload, "inbox": not bool(context.get("path"))}
         async with session.post(config["url"].rstrip("/") + path, json=payload,
             headers={"Authorization": authorization.get(), "X-Controller-Key": config["token"]},
             timeout=aiohttp.ClientTimeout(total=timeout)) as response:
             value = await response.json()
             if response.status >= 400:
                 raise RuntimeError(value.get("error", "Craft bridge rejected the request"))
+            if context is not None and value.get("path"):
+                context["path"] = value["path"]
             return value
 
     async def create_note(user, title, text):
@@ -41,6 +50,10 @@ def install(frontier):
         return result["id"]
 
     async def load_file(ref, files, messages, user):
+        if str(ref).startswith("/"):
+            async with aiohttp.ClientSession() as session:
+                value = await bridge_call(session, CRAFT, "/file", {"path": ref})
+            return value["name"], base64.b64decode(value["b64"]), value["path"]
         items = await api("/api/v1/files/")
         items = items.get("items", []) if isinstance(items, dict) else items
         # MCP hosts do not forward chat attachments. Explicit IDs/names are supported;
@@ -57,6 +70,11 @@ def install(frontier):
         return pick["name"], data, pick["id"]
 
     async def store_file(user, name, data, mime):
+        context = file_context.get()
+        if context is not None and context.get("defer_display"):
+            if not context.get("path"):
+                raise RuntimeError("The file operation did not return a saved workspace path.")
+            return context["path"], ""
         form = aiohttp.FormData(quote_fields=False)
         form.add_field("file", data, filename=name, content_type=mime)
         result = await api("/api/v1/files/?process=false", method="POST", data=form)

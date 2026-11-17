@@ -23,6 +23,7 @@ This is an inventory of verified change groups, not a count of historical edits.
 | FIX-012 | Text-only Craft command lookups advertised an MCP App and left an empty widget; omit UI resource metadata for `craft_commands`. | `frontier/mcp-apps/server.py` | Protocol discovery and text-result regression in `tests/test_protocol.py` |
 | FIX-013 | Multipart Craft uploads stored URL-escaped filenames in WebUI metadata; send quoted filename values without percent encoding. | `frontier/mcp-apps/openwebui.py` | Real multipart upload round trip for spaces, Unicode, quotes and literal percent sequences in `tests/test_frontier_upload.py` |
 | FIX-014 | Models could call `display_file` after an already displayed Frontier file card, duplicating the attachment; successful file-card results and MCP server initialization instructions explicitly discourage that unless the user requests a separate display. The native request pipeline delivers MCP instructions to the model; the attempted global default system parameter did not reach it and was reverted. Advisory only; the tool remains available. | `frontier/mcp-apps/server.py` | Protocol initialization/card/error tests; captured native requests and real-model tool execution, with explicit-display/ordinary-file controls |
+| FIX-015 | Root-relative WebUI file URLs missed the preview-link check; normalize only recognized same-origin Files content paths before adding the preview action. | `frontier/mcp-apps/server.py` | Protocol tests cover relative/absolute local paths and reject foreign, query-bearing and traversal URLs |
 
 These are initially **kit-owned** fixes, not confirmed upstream bugs. Some correct
 our own adapter assumptions. Upstream issue/PR links are pending unless explicitly listed;
@@ -38,6 +39,7 @@ do not invent an issue number or report an integration defect as an upstream reg
 | INT-004 | Pinned independent deployment, external state, provider setup, Firecrawl and backup/recovery. | `compose.yaml`, `versions.lock.json`, `controller/`, `scripts/` |
 | INT-005 | Optional [document-only preview page](document-preview.md), compiled from pinned WebUI components and served by the adapter; official application images unchanged. | `document-preview/`, `controller/document_preview.py`, `scripts/build_document_preview.py` |
 | INT-006 | Frontier file cards link supported WebUI files to the document viewer through the standard MCP open-link request; existing downloads and thumbnails remain. | `frontier/mcp-apps/server.py`, `build.py` |
+| INT-007 | Separate Craft file work from delivery: create/read/edit/convert return exact saved paths without cards/uploads; `craft_display` presents a finished workspace file, including Python/shell outputs. Widget Export uses the same sequence. | `frontier/mcp-apps/server.py`, `openwebui.py`, `app.js`, `guest/craft_job.py` |
 
 ## Known gaps and external changes
 

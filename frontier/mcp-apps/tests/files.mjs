@@ -17,9 +17,16 @@ const spec = {blocks: [{type: 'file', format: 'docx', name: 'Synthetic.docx', ur
 const bundle = await build({stdin: {resolveDir: process.cwd(), contents: `
 import {AppBridge, PostMessageTransport} from '@modelcontextprotocol/ext-apps/app-bridge';
 const frame = document.querySelector('iframe');
-const bridge = new AppBridge(null, {name: 'Synthetic file card QA', version: '1'}, {openLinks: {}},
+const bridge = new AppBridge(null, {name: 'Synthetic file card QA', version: '1'}, {openLinks: {}, serverTools: {}},
   {hostContext: {theme: 'light', displayMode: 'inline', containerDimensions: {width: 390}}});
 window.links = [];
+window.calls = [];
+bridge.oncalltool = async params => {
+  window.calls.push({name: params.name, arguments: params.arguments});
+  if (params.name === 'craft_file') return {content: [], structuredContent: {path: '/home/user/Inbox/Synthetic.docx'}};
+  if (params.name === 'craft_display') return {content: [], structuredContent: {spec: ${JSON.stringify(spec)}}};
+  throw new Error('Unexpected tool: ' + params.name);
+};
 bridge.onopenlink = async ({url}) => { window.links.push(url); return {}; };
 bridge.onsizechange = ({height}) => { frame.style.height = height + 'px'; };
 window.sendSpec = spec => bridge.sendToolResult({structuredContent: {spec}, content: []});
@@ -60,6 +67,17 @@ try {
   assert.equal(await frame.getByRole('button', {name: 'Download', exact: true}).count(), 1);
   assert.deepEqual(errors, []);
   records.push({name: 'cards without preview metadata keep existing behavior; no JavaScript exceptions', status: 'passed'});
+  await page.evaluate(value => window.sendSpec(value), {title: 'Synthetic export', blocks: [{type: 'text', md: 'Synthetic document'}], _ui: {card: 'synthetic-card'}});
+  await frame.getByRole('button', {name: 'Export', exact: true}).click();
+  // Test the RPC sequence independently of the upstream floating menu's positioning.
+  await frame.getByRole('button', {name: /Word document/}).evaluate(button => button.click());
+  await frame.getByRole('button', {name: 'Open preview', exact: true}).waitFor();
+  assert.deepEqual(await page.evaluate(() => window.calls), [
+    {name: 'craft_file', arguments: {card: 'synthetic-card', format: 'docx', open_in_desktop: false}},
+    {name: 'craft_display', arguments: {path: '/home/user/Inbox/Synthetic.docx'}},
+  ]);
+  assert.deepEqual(errors, []);
+  records.push({name: 'widget Export generates then explicitly displays the returned path', status: 'passed'});
 } catch (error) {
   records.push({name: 'file card preview', status: 'failed', message: String(error)});
   throw error;

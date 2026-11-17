@@ -73,6 +73,9 @@ async def main(credentials):
             value = await client.call_tool("craft_file", {"format": extension, "card": card,
                 **({"rows_json": '[["Item","Cost"],["Train",1000]]'} if extension == "xlsx" else {})})
             assert not value.is_error and value.structured_content, str(value)
+            assert "spec" not in value.structured_content
+            value = await client.call_tool("craft_display", {"path": value.structured_content["path"]})
+            assert not value.is_error and value.structured_content, str(value)
             file = value.structured_content["spec"]["blocks"][0]
             assert file["type"] == "file" and file["size"] > 0
         return card

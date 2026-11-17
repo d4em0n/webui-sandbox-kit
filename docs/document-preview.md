@@ -25,6 +25,18 @@ the file ID; normal browser login and file permissions still apply. Existing
 thumbnails and downloads remain available. MCP hosts handle the standard open-link
 request; an authenticated in-app browser depends on the mobile client's support.
 
+File work and delivery are separate: `frontier_craft_file`, `frontier_craft_read`,
+`frontier_craft_edit` and `frontier_craft_convert` return metadata and an exact saved
+workspace path without a card or a WebUI upload. Existing uploads can be referenced
+by owned file ID/name; workspace files use absolute `/home/user/...` paths. Use the
+returned path directly for further Python/shell edits, then call
+`frontier_craft_display(path=...)` once to deliver the finished file. That tool
+uploads the current bytes using the caller's session and returns the existing file
+card. It never edits/converts the file. Later workspace changes require another
+display call; existing cards keep their original downloadable snapshot. Workspace
+reads for display/editing are limited to 10 MiB to fit the existing bridge frame.
+The widget Export action performs the same create-then-display sequence.
+
 The adapter selects PDF.js's supplied legacy build for WebViews without newer
 TypedArray methods. Its small PDF pan/zoom adapter lets single-finger swipes at
 1x scroll multipage documents; pinch and zoomed panning remain upstream behavior.

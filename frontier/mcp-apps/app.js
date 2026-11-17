@@ -43,7 +43,10 @@ const bridge = {
         if (exportAction) args.format = {Word:'docx',PDF:'pdf',Excel:'xlsx',PowerPoint:'pptx'}[exportAction[1]];
         if (exportAction) args.open_in_desktop = text.includes('and open it in the Craft desktop');
         try {
-          const result = await app.callServerTool({name, arguments: args});
+          let result = await app.callServerTool({name, arguments: args});
+          if (exportAction && result.structuredContent?.path) {
+            result = await app.callServerTool({name: 'craft_display', arguments: {path: result.structuredContent.path}});
+          }
           if (result.structuredContent?.spec) render(result);
           else notice(result.content?.find(x => x.type === 'text')?.text ?? 'The action returned no result.');
         } catch { notice('The host could not complete this action. You can retry.'); }
