@@ -17,11 +17,13 @@ PDF, DOCX, PPTX, XLSX and XLS use the same components and limitations as the pin
 WebUI preview. Terminal Word/PowerPoint first request the existing PDF conversion,
 with WebUI's browser fallback if conversion is unavailable. Spreadsheet styles,
 merged cells and tabs are supported; this does not add Excel chart fidelity.
-Reopening reads current bytes; it does not preserve edits or interactive state.
+Reopening or pressing **Refresh** reads current bytes; it does not preserve edits
+or interactive state. An open preview does not poll for workspace changes.
 
 Frontier file cards include **Open preview** beside **Download** for supported
-documents stored through WebUI's Files API. The button opens this page using only
-the file ID; normal browser login and file permissions still apply. Existing
+documents. Existing uploaded-file cards use their WebUI file ID; workspace cards
+use the configured Terminal connection and resolved file path. Normal browser login
+and Files/Terminal permissions still apply. Existing
 thumbnails and downloads remain available. MCP hosts handle the standard open-link
 request; an authenticated in-app browser depends on the mobile client's support.
 
@@ -31,10 +33,11 @@ workspace path without a card or a WebUI upload. Existing uploads can be referen
 by owned file ID/name; workspace files use absolute `/home/user/...` paths. Use the
 returned path directly for further Python/shell edits, then call
 `frontier_craft_display(path=...)` once to deliver the finished file. That tool
-uploads the current bytes using the caller's session and returns the existing file
-card. It never edits/converts the file. Later workspace changes require another
-display call; existing cards keep their original downloadable snapshot. Workspace
-reads for display/editing are limited to 10 MiB to fit the existing bridge frame.
+checks the file in the caller's workspace and returns the existing file card with
+authenticated Terminal download/preview links, without uploading a copy to WebUI.
+It never edits/converts the file. Reopen or refresh to see later workspace changes;
+moving/deleting the source breaks the old link. The viewer retains its 32 MiB fetch
+limit; workspace reads for editing retain the 10 MiB bridge limit.
 The widget Export action performs the same create-then-display sequence.
 
 The adapter selects PDF.js's supplied legacy build for WebViews without newer

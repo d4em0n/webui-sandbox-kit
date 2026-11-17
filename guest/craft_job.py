@@ -49,6 +49,8 @@ def main(operation, body):
         path = path.resolve(strict=True)
         if not path.is_file():
             raise ValueError("Path must be a regular workspace file.")
+        if body.get("metadata_only"):
+            return {"path": str(path), "name": path.name, "size": path.stat().st_size}
         limit = 10 * 1024 * 1024  # Base64 plus JSON must fit the existing 16 MiB bridge frame.
         if path.stat().st_size > limit:
             raise ValueError("Workspace file exceeds the 10 MiB display limit.")

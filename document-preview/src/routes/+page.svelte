@@ -169,6 +169,12 @@
       class="min-w-0 flex-1 truncate">{name}</span
     >
     <button
+      id="refresh"
+      aria-label="Refresh"
+      disabled={loading}
+      on:click={() => location.reload()}>↻</button
+    >
+    <button
       id="download"
       aria-label="Download"
       disabled={!name || loading}

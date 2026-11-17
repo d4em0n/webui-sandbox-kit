@@ -44,6 +44,9 @@ class RoutingTests(unittest.IsolatedAsyncioTestCase):
             if request.path == '/files/display':
                 self.assertEqual(request.headers.get('Accept-Encoding'), 'identity')
                 return web.json_response({'path': request.query.get('path'), 'exists': True})
+            if request.path == '/files/view':
+                return web.Response(body=b'Original document bytes', status=404 if request.query.get('missing') else 200,
+                    headers={'Content-Disposition': 'inline; filename="backend.pdf"'} if request.query.get('existing') else {})
             if request.headers.get('Upgrade', '').lower() == 'websocket':
                 ws = web.WebSocketResponse()
                 await ws.prepare(request)
@@ -92,6 +95,20 @@ class RoutingTests(unittest.IsolatedAsyncioTestCase):
 
     def headers(self, uid=None, key='router-secret'):
         return {'Authorization': 'Bearer ' + key, **({'X-User-Id': uid} if uid else {})}
+
+    async def test_workspace_download_filename_preserves_bytes_and_existing_preview_headers(self):
+        from urllib.parse import unquote
+        name = 'Résumé & 100% #1.xlsx'
+        params = {'path': '/home/user/Documents/' + name}
+        response = await self.client.get('/files/view', params=params, headers=self.headers(self.users[0]))
+        self.assertEqual(await response.read(), b'Original document bytes')
+        disposition = response.headers['Content-Disposition']
+        self.assertTrue(disposition.startswith("inline; filename*=UTF-8''"))
+        self.assertEqual(unquote(disposition.split("''", 1)[1]), name)
+        for extra, expected in [({'preview': 'true'}, None), ({'missing': 'true'}, None),
+                                ({'existing': 'true'}, 'inline; filename="backend.pdf"')]:
+            response = await self.client.get('/files/view', params={**params, **extra}, headers=self.headers(self.users[0]))
+            self.assertEqual(response.headers.get('Content-Disposition'), expected)
 
     async def test_display_file_returns_office_mime_when_webui_has_no_mime_database(self):
         from unittest.mock import patch

@@ -171,4 +171,6 @@ class Craft:
         if process.returncode:
             return web.json_response({"error": "Craft file job failed; inspect the input and supported format."}, status=400)
         result = json.loads(output)
+        if operation == "file" and body.get("metadata_only") and not result.get("error"):
+            result["terminal_id"] = self.manager.config["terminal_id"]
         return web.json_response(result, status=400 if result.get("error") else 200)

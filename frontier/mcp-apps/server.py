@@ -1,11 +1,11 @@
 """Frontier's existing Tools implementation exposed through native MCP Apps."""
 import inspect
-import base64
 import json
 import os
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote, urlencode
 
 from mcp.server.mcpserver import MCPServer, Context
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
@@ -29,18 +29,20 @@ class FrontierTools(frontier.Tools):
         """Display a finished workspace file as a Download/Open preview card, including files made or edited
         with Python/shell tools. Does not edit or convert it. Call once when the final file is ready.
 
-        :param path: exact absolute path inside /home/user, returned by Craft tools or your workspace commands (10 MiB maximum).
+        :param path: exact absolute path inside /home/user, returned by Craft tools or your workspace commands.
         """
         try:
             async with frontier.aiohttp.ClientSession() as session:
-                value = await frontier._bridge_call(session, self._bridge(), "/file", {"path": path})
-            data = base64.b64decode(value["b64"])
-            fid, url = await frontier._store_file(__user__ or {}, value["name"], data, value["mime"])
+                value = await frontier._bridge_call(session, self._bridge(), "/file", {"path": path, "metadata_only": True})
+            query = urlencode({"path": value["path"]})
+            url = openwebui.PUBLIC + "/api/v1/terminals/" + quote(value["terminal_id"], safe="") + "/files/view?" + query
         except Exception as error:
             return f"Frontier UI could not display the file: {error}"
         block = {"type": "file", "name": value["name"], "format": Path(value["name"]).suffix[1:].lower(),
-                 "size": len(data), "url": url}
-        return await self._file_card(block, None), f"File {value['name']} (id {fid}) is shown with Download and available preview actions."
+                 "size": value["size"], "url": url}
+        if block["format"] in ("pdf", "docx", "pptx", "xlsx", "xls"):
+            block["preview_url"] = openwebui.PUBLIC + "/document-preview/?" + urlencode({"terminal_id": value["terminal_id"], "path": value["path"]})
+        return await self._file_card(block, None), f"File {value['name']} at {value['path']} is shown with Download and available preview actions. Links read the current workspace file; refresh an open preview after edits."
 
     async def _card(self, spec, __event_call__=None, req=None):
         spec.setdefault("_ui", {})["cdn"] = self.valves.maplibre_cdn

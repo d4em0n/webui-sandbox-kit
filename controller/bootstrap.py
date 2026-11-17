@@ -46,6 +46,7 @@ def prepare(data=DATA):
         "memoryMiB": settings["user_memory_mib"], "image": versions["images"]["terminal"],
         "public_web": True, "auto_browser": True, "identity_in_guest": True,
         "root_disk_gib": settings["root_disk_gib"],
+        "terminal_id": settings["terminal_id"],
     })
     terminal = {"id": settings["terminal_id"], "name": "My Workspace", "enabled": True,
                 "url": "http://host.microsandbox.internal:18800", "path": "/openapi.json",

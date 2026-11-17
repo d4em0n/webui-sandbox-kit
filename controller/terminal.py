@@ -13,6 +13,7 @@ import secrets
 import sqlite3
 import time
 import uuid
+from urllib.parse import quote
 
 from aiohttp import ClientError, ClientSession, ClientTimeout, WSMsgType, web
 
@@ -366,6 +367,10 @@ class Manager:
                 response = web.StreamResponse(status=upstream.status,
                     headers={key: value for key, value in upstream.headers.items()
                              if key.lower() not in HOP_HEADERS})
+                if request.method == 'GET' and request.path == '/files/view' and upstream.status == 200:
+                    name = Path(request.query.get('path', '')).name
+                    if name and request.query.get('preview', '').lower() != 'true':
+                        response.headers.setdefault('Content-Disposition', "inline; filename*=UTF-8''" + quote(name, safe=''))
                 await response.prepare(request)
                 async for chunk in upstream.content.iter_chunked(65536):
                     await response.write(chunk)

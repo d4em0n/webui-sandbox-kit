@@ -98,24 +98,30 @@ class ProtocolTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("Original content", read.content[0].text)
             self.assertIsNone(server.openwebui.file_context.get())
 
-    async def test_display_uploads_exact_workspace_bytes_and_returns_preview_card(self):
+    async def test_display_links_to_current_workspace_without_uploading_bytes(self):
+        from urllib.parse import parse_qs, urlsplit
         base = "https://webui.example"
-        data = b"Python generated workbook"
+        path = '/home/user/Documents/Résumé & 100% #1.xlsx'
         with patch.object(server.openwebui, "PUBLIC", base), \
              patch.object(server.frontier, "_bridge_call", new_callable=AsyncMock) as bridge, \
              patch.object(server.frontier, "_store_file", new_callable=AsyncMock) as upload:
-            bridge.return_value = {"name": "Chart.xlsx", "mime": "application/test", "b64": base64.b64encode(data).decode()}
-            upload.return_value = ("synthetic-id", base + "/api/v1/files/synthetic-id/content")
+            bridge.return_value = {"name": Path(path).name, "path": path, "size": 123,
+                                   "terminal_id": "synthetic-workspace"}
             async with Client(server.server) as client:
-                result = await client.call_tool("craft_display", {"path": "/home/user/Documents/Chart.xlsx"})
+                result = await client.call_tool("craft_display", {"path": path})
             self.assertFalse(result.is_error)
             block = result.structured_content["spec"]["blocks"][0]
-            self.assertEqual(block["preview_url"], base + "/document-preview/?file_id=synthetic-id")
-            self.assertEqual(block["size"], len(data))
+            download, preview = urlsplit(block["url"]), urlsplit(block["preview_url"])
+            self.assertEqual(download.path, "/api/v1/terminals/synthetic-workspace/files/view")
+            self.assertEqual(parse_qs(download.query), {"path": [path]})
+            self.assertEqual(preview.path, "/document-preview/")
+            self.assertEqual(parse_qs(preview.query), {"path": [path], "terminal_id": ["synthetic-workspace"]})
+            self.assertEqual(block["size"], 123)
             self.assertIn("Do not call display_file", result.content[0].text)
-            self.assertEqual(upload.await_args.args[2], data)
+            self.assertIn("refresh an open preview", result.content[0].text)
+            upload.assert_not_awaited()
             self.assertEqual(bridge.await_count, 1)
-            self.assertEqual(bridge.await_args.args[2:], ("/file", {"path": "/home/user/Documents/Chart.xlsx"}))
+            self.assertEqual(bridge.await_args.args[2:], ("/file", {"path": path, "metadata_only": True}))
             self.assertIsNone(server.openwebui.file_context.get())
 
     async def test_display_error_does_not_upload_or_render_a_card(self):
