@@ -20,7 +20,9 @@ The root MIT license covers this kit's original integration code, not upstream a
 - **WordCraft / PdfCraft / DeckCraft**: checksum-pinned official releases from
   [storytold](https://github.com/storytold). Their release license/NOTICE/font notices are
   retained alongside the binaries in `/opt/craft/<app>/licenses` in the controller image.
-  Only headless CLI engines are installed; full desktop applications are not bundled.
+  Headless CLI engines and pinned WordCraft/DeckCraft/GridCraft web builds are packaged;
+  full desktop applications are not bundled. Unmodified web distributions, including their
+  licenses and font notices, are served under `/craft/<app>/<version>/`.
 - **MCP Apps SDK**: official `@modelcontextprotocol/ext-apps` 2.1.0, bundled using the lockfile;
   [repository and license](https://github.com/modelcontextprotocol/ext-apps).
   Python MCP SDK runs from the pinned official WebUI image.

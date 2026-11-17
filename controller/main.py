@@ -4,12 +4,14 @@ import contextlib
 import logging
 import os
 import signal
+from pathlib import Path
 
 from aiohttp import web
 
 from .bootstrap import prepare
 from .catalog import own_home
 from .craft import Craft
+from .craft_web import craft_web_routes
 from .document_preview import document_preview_routes
 from .firecrawl import endpoint as firecrawl_endpoint
 from .proxy import relay
@@ -46,6 +48,7 @@ async def serve():
 
     public = web.Application(client_max_size=100 * 1024 * 1024)
     public.add_routes(document_preview_routes(CODE / "document-preview/dist"))
+    public.add_routes(craft_web_routes(CODE / "document-editor", Path("/opt/craft-web")))
     public.router.add_route("*", "/{path:.*}", frontend)
     public_runner = web.AppRunner(public, access_log=None, shutdown_timeout=20)
     await public_runner.setup()

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craft document editor</title>
+  <link rel="stylesheet" href="/document-editor/editor.css">
+  <script type="module" src="/document-editor/editor.js"></script>
+</head>
+<body>
+  <header>
+    <span id="name">Craft editor</span>
+    <button id="refresh" disabled title="Reload the Terminal file and discard unsaved edits">Refresh</button>
+    <button id="save" disabled>Save</button>
+    <span id="status" role="status">Loading…</span>
+  </header>
+  <iframe id="app" title="Craft document editor" sandbox="allow-scripts allow-same-origin"></iframe>
+</body>
+</html>

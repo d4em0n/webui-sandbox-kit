@@ -50,3 +50,24 @@ configured origin and embedded data/blobs. Documents cannot become arbitrary
 HTML pages. The compatible Conduit experiment loads the viewer on a tap and
 retains its native preview when `/document-preview/config.json` is unavailable.
 Server installation alone does not update the mobile client.
+
+## Optional Craft editing
+
+Workspace DOCX, PPTX and XLSX previews have **Edit in Craft**. It opens a separate
+server-hosted page using the current authenticated Terminal connection/path. The
+pinned WordCraft, DeckCraft or GridCraft web app receives document bytes through
+its existing same-origin host bridge. This does not change Conduit navigation or
+the default lightweight preview, and does not install the GridCraft CLI.
+
+**Save** writes the original filename/directory through the normal Terminal upload
+API and shows **Saved** only after a successful server response. It overwrites the
+current file without conflict checks. **Refresh** passes current Terminal bytes to the running editor
+and discards unsaved editor changes without restarting its WASM engine. Save As and exports do not overwrite the
+opened file; this initial host rejects them. Reads/saves are bounded at 32 MiB.
+No automatic retry, background saving or collaboration mechanism is added.
+
+Only same-origin messages from the selected editor frame are accepted; the host
+retains the opened filename and uses the current account session. CSP for the
+existing preview is unchanged. The separate editor allows its packaged app frame;
+app scripts/WASM/fonts/notices are pinned with checksums, compressed and cached at
+versioned paths. Private document requests remain authenticated and uncached.

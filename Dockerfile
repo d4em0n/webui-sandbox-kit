@@ -22,6 +22,13 @@ COPY versions.lock.json ./
 COPY scripts/fetch_assets.py scripts/fetch_assets.py
 RUN python3 scripts/fetch_assets.py /assets
 
+FROM ubuntu@sha256:2198e4c65076e9cb0b3d695219df667c0e3b0072da64ca3c2648aca17dcecaf5 AS craft-web
+RUN apt-get update && apt-get install -y --no-install-recommends python3 ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /build
+COPY versions.lock.json ./
+COPY scripts/fetch_assets.py scripts/fetch_craft_web.py scripts/
+RUN python3 scripts/fetch_craft_web.py /craft-web
+
 FROM ubuntu@sha256:2198e4c65076e9cb0b3d695219df667c0e3b0072da64ca3c2648aca17dcecaf5
 RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates libgcc-s1 \
     && rm -rf /var/lib/apt/lists/* && python3 -m venv /opt/venv
@@ -32,6 +39,7 @@ WORKDIR /opt/kit
 COPY controller/requirements.lock /opt/kit/controller/requirements.lock
 RUN pip install --no-cache-dir -r controller/requirements.lock
 COPY --from=assets /assets/ /opt/
+COPY --from=craft-web /craft-web/ /opt/craft-web/
 COPY . /opt/kit/
 COPY --from=frontier /build/dist/frontier.html /opt/kit/frontier/mcp-apps/dist/frontier.html
 COPY --from=document-preview /build/document-preview/dist /opt/kit/document-preview/dist

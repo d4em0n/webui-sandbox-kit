@@ -16,6 +16,7 @@
     selectedSheet = "",
     html = null;
   let originalUrl = "",
+    editorUrl = "",
     token = "",
     targetPage = null;
   const abort = new AbortController();
@@ -97,6 +98,11 @@
     const ext = name.split(".").at(-1)?.toLowerCase();
     if (!["pdf", "docx", "pptx", "xlsx", "xls"].includes(ext))
       throw Error("No preview available");
+    if (terminal && ["docx", "pptx", "xlsx"].includes(ext)) {
+      editorUrl = "/document-editor/?" + new URLSearchParams({
+        terminal_id: terminal, path, ...(chat ? {chat_id: chat} : {}),
+      });
+    }
     let data;
     if (terminal && ["docx", "pptx"].includes(ext)) {
       try {
@@ -168,6 +174,7 @@
     <span class="shrink-0 font-semibold">Open WebUI</span><span
       class="min-w-0 flex-1 truncate">{name}</span
     >
+    {#if editorUrl}<a href={editorUrl}>Edit in Craft</a>{/if}
     <button
       id="refresh"
       aria-label="Refresh"

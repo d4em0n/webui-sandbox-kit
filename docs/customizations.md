@@ -41,6 +41,7 @@ do not invent an issue number or report an integration defect as an upstream reg
 | INT-005 | Optional [document-only preview page](document-preview.md), compiled from pinned WebUI components and served by the adapter; official application images unchanged. | `document-preview/`, `controller/document_preview.py`, `scripts/build_document_preview.py` |
 | INT-006 | Frontier file cards link supported WebUI files to the document viewer through the standard MCP open-link request; existing downloads and thumbnails remain. | `frontier/mcp-apps/server.py`, `build.py` |
 | INT-007 | Separate Craft file work from delivery: create/read/edit/convert return exact saved paths without cards/uploads; `craft_display` presents authenticated workspace-path links without uploading a snapshot, including Python/shell outputs. The document viewer has an explicit Refresh action. Widget Export uses the same sequence. | `frontier/mcp-apps/server.py`, `openwebui.py`, `app.js`, `guest/craft_job.py` |
+| INT-008 | Optional Craft web editing from workspace previews; original-path Save with server confirmation and explicit Refresh, using existing authenticated Terminal APIs and released host bridges. Last save wins; no conflict detection. | `controller/craft_web.py`, `document-editor/`, `scripts/fetch_craft_web.py`, viewer Edit action |
 
 ## Known gaps and external changes
 

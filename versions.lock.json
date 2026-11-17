@@ -43,5 +43,22 @@
     "revision": "b0e6098e940942281d9c83f3529ea117287a3a22",
     "url": "https://codeload.github.com/open-webui/open-webui/tar.gz/b0e6098e940942281d9c83f3529ea117287a3a22",
     "sha256": "d62650bc91729bcc9bd4abf627bebafbcfd278455a7bd4ecc9053f61f3782ecf"
+  },
+  "craft_web": {
+    "wordcraft": {
+      "version": "0.18.1",
+      "url": "https://github.com/storytold/wordcraft/releases/download/v0.18.1/wordcraft-web-0.18.1.zip",
+      "sha256": "3daa7c2d1f209a7eeb2527fcefa3fe31e875848fb1970d68f54edae55fe0bc9f"
+    },
+    "deckcraft": {
+      "version": "0.18.1",
+      "url": "https://github.com/storytold/deckcraft/releases/download/v0.18.1/deckcraft-web-0.18.1.zip",
+      "sha256": "3196e537fcfab538aaa2e88584bc74e29bb584459b916ab584ac22fbafe32db5"
+    },
+    "gridcraft": {
+      "version": "0.19.1",
+      "url": "https://github.com/storytold/gridcraft/releases/download/v0.19.1/gridcraft-web-0.19.1.zip",
+      "sha256": "48c5d1b101befebb3c5ba3b7a14914f01c3207934813ed07dc4251b7ae116a78"
+    }
   }
 }
